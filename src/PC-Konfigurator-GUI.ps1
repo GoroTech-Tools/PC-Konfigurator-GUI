@@ -3605,5 +3605,17 @@ if ($script:TestUIMode) {
     $script:TestUiTimer.Start()
 }
 
+$window.Add_ContentRendered({
+        # Nach dem vorbereitenden Laufzeitfenster startet die Anwendung in
+        # einem neuen Prozess aus LocalAppData. Das Hauptfenster wird hier
+        # ausdrücklich wiederhergestellt und aktiviert, damit es sichtbar im
+        # Vordergrund erscheint.
+        $window.WindowState = 'Normal'
+        $window.Topmost = $true
+        $window.Activate() | Out-Null
+        $window.Focus() | Out-Null
+        $window.Topmost = $false
+    })
+
 [void]$window.ShowDialog()
 exit 0
