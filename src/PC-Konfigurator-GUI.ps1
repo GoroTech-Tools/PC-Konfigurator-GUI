@@ -335,6 +335,19 @@ $script:ScriptRoot = if (-not [string]::IsNullOrWhiteSpace($PSScriptRoot)) {
         (Get-Location).Path
     }
 }
+$script:ApplicationVersion = 'unbekannt'
+foreach ($versionCandidate in @(
+        (Join-Path (Split-Path $script:ScriptRoot -Parent) 'VERSION'),
+        (Join-Path $script:ScriptRoot 'VERSION')
+    ) | Select-Object -Unique) {
+    if (Test-Path -LiteralPath $versionCandidate -PathType Leaf) {
+        $versionValue = (Get-Content -LiteralPath $versionCandidate -Raw).Trim()
+        if ($versionValue -match '^\d+\.\d+\.\d+$') {
+            $script:ApplicationVersion = $versionValue
+            break
+        }
+    }
+}
 
 # Thread-sichere Warteschlange: Hintergrund-Runspaces schreiben hier ihre Zeilen hinein,
 # ein DispatcherTimer im GUI-Thread liest sie regelmäßig aus und schreibt sie in die Log-TextBox.
@@ -3726,7 +3739,7 @@ $script:TestUIMode = [bool]$TestUI
 
 if (-not $script:TestUIMode) {
     Clear-OldLogs
-    Write-Log "=== PC-Konfigurator-GUI gestartet (Version 1.0.0.0) ===" "INFO"
+    Write-Log "=== PC-Konfigurator-GUI gestartet (Version $script:ApplicationVersion) ===" "INFO"
 }
 
 Show-WizardPage 'PanelWelcome'

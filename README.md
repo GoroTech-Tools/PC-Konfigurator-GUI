@@ -10,7 +10,7 @@ Benutzeroberfläche bereit. Sie führt durch die Konfiguration, macht Auswahl-
 und Bestätigungsschritte verständlich zugänglich und zeigt den Fortschritt
 sowie Protokollmeldungen während der Ausführung an.
 
-Autor: Thomas Gorontzy · Version 1.0.0.0
+Autor: Thomas Gorontzy · Version 1.0.1
 Plattform: Windows 10 (Build 18362+) / Windows 11, Office 2013+
 
 ## Herkunft und Einsatzbereich
@@ -54,6 +54,11 @@ Anschließend startet sie aus diesem Benutzerordner. Ein manuelles
 Installationsskript ist nicht erforderlich.
 
 ## Build und Release
+
+Die Version wird zentral in `VERSION` nach [Semantic Versioning](https://semver.org/lang/de/) gepflegt:
+`major.minor.patch`. Der Build verwendet daraus automatisch eine vierteilige
+Windows-Dateiversion (`major.minor.patch.0`) und benennt Release-Ordner sowie
+ZIP-Dateien mit der SemVer-Version.
 
 Build:
 

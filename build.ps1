@@ -13,11 +13,22 @@
 param(
     [string]$SourceScript,
     [string]$OutputExe,
-    [string]$Version = '1.0.0.0'
+    [string]$Version
 )
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$versionFile = Join-Path $projectRoot 'VERSION'
+if ([string]::IsNullOrWhiteSpace($Version)) {
+    if (-not (Test-Path -LiteralPath $versionFile -PathType Leaf)) {
+        throw "Versionsdatei fehlt: $versionFile"
+    }
+    $Version = (Get-Content -LiteralPath $versionFile -Raw).Trim()
+}
+if ($Version -notmatch '^\d+\.\d+\.\d+$') {
+    throw "Ungültige Version '$Version'. Erwartet wird Semantic Versioning im Format major.minor.patch."
+}
+$fileVersion = "$Version.0"
 if ([string]::IsNullOrWhiteSpace($SourceScript)) {
     $SourceScript = Join-Path $projectRoot 'src\PC-Konfigurator-GUI.ps1'
 }
@@ -26,6 +37,7 @@ if ([string]::IsNullOrWhiteSpace($OutputExe)) {
 }
 
 Write-Host "=== PC-Konfigurator-GUI Build ===" -ForegroundColor Cyan
+Write-Host "Version: $Version (Dateiversion: $fileVersion)" -ForegroundColor Cyan
 
 # --- ps2exe-Modul sicherstellen ---
 $ps2exeModule = Get-Module -ListAvailable -Name ps2exe | Select-Object -First 1
@@ -69,6 +81,7 @@ foreach ($fileName in @('README.MD', 'Pin-Desktop-Schnellzugriff.ps1', 'Install-
     $sourcePath = Join-Path $projectRoot $fileName
     if (Test-Path $sourcePath) { Copy-Item -LiteralPath $sourcePath -Destination $payloadStaging -Force }
 }
+Copy-Item -LiteralPath $versionFile -Destination $payloadStaging -Force
 Compress-Archive -Path (Join-Path $payloadStaging '*') -DestinationPath $payloadZip -CompressionLevel Optimal -Force
 Remove-Item $payloadStaging -Recurse -Force
 
@@ -125,7 +138,7 @@ try {
         -outputFile $OutputExe `
         -noConsole `
         -title "PC-Konfigurator-GUI" `
-        -version $Version `
+        -version $fileVersion `
         -company "Thomas Gorontzy" `
         -product "PC-Konfigurator-GUI" `
         -description "GUI-Assistent zur automatisierten Konfiguration von Windows-/Office-Arbeitsumgebungen (Vorlagen, Schriftarten, Corporate Design, Outlook-Signaturen)." `

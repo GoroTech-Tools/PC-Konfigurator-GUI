@@ -2,6 +2,11 @@
 
 ## Aufbau und Release
 
+Die zentrale Datei `VERSION` enthält die Semantic-Versioning-Angabe im Format
+`major.minor.patch`. `build.ps1` und `create-release.ps1` lesen diese Version
+automatisch; für die Windows-EXE wird die vierteilige Dateiversion
+`major.minor.patch.0` erzeugt.
+
 Die Anwendung ist ein PowerShell-Skript mit einer grafischen Benutzeroberfläche auf Basis der Windows Presentation Foundation, das mit PS2EXE als GUI-EXE gebaut wird. Die Windows Presentation Foundation stellt Fenster, Steuerelemente und den Assistenten bereit; dadurch werden die Konsoleneingaben des Ursprungsprojekts durch eine geführte Bedienung ersetzt und Laufzeitprotokolle können live angezeigt werden. Ein Release-ZIP enthält:
 
 - `PC-Konfigurator-GUI.exe`
@@ -121,7 +126,7 @@ Im Projektverzeichnis:
 
 Auch `build.ps1` aktualisiert nach einer erfolgreichen Kompilierung die lokale
 Release-EXE und das ZIP unter `release\PC-Konfigurator-GUI-v<Version>\`.
-`create-release.ps1` übergibt seine Versionsnummer an den Build und erstellt
+`create-release.ps1` übergibt die zentrale Versionsnummer an den Build und erstellt
 anschließend die vollständige Release-Struktur erneut.
 
 Das ZIP-Release wird unter `release\` erzeugt. Auf Zielrechnern wird die EXE

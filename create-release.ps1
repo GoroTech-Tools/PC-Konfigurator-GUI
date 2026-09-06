@@ -4,12 +4,22 @@ Erzeugt ein vollständiges, auf andere Rechner ausrollbares GUI-Release-ZIP.
 #>
 [CmdletBinding()]
 param(
-    [string]$Version = '1.0.0.0',
+    [string]$Version,
     [switch]$SkipBuild
 )
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = $PSScriptRoot
+$versionFile = Join-Path $projectRoot 'VERSION'
+if ([string]::IsNullOrWhiteSpace($Version)) {
+    if (-not (Test-Path -LiteralPath $versionFile -PathType Leaf)) {
+        throw "Versionsdatei fehlt: $versionFile"
+    }
+    $Version = (Get-Content -LiteralPath $versionFile -Raw).Trim()
+}
+if ($Version -notmatch '^\d+\.\d+\.\d+$') {
+    throw "Ungültige Version '$Version'. Erwartet wird Semantic Versioning im Format major.minor.patch."
+}
 $releaseRoot = Join-Path $projectRoot 'release'
 $stageRoot = Join-Path $releaseRoot "PC-Konfigurator-GUI-v$Version"
 $zipPath = Join-Path $releaseRoot "PC-Konfigurator-GUI-v$Version.zip"
