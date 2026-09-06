@@ -71,7 +71,29 @@ foreach ($fileName in @('README.MD', 'Pin-Desktop-Schnellzugriff.ps1', 'Install-
 }
 Compress-Archive -Path (Join-Path $payloadStaging '*') -DestinationPath $payloadZip -CompressionLevel Optimal -Force
 Remove-Item $payloadStaging -Recurse -Force
-$embeddedFiles = @{ '%LOCALAPPDATA%\PC-Konfigurator-GUI\_embedded-payload.zip' = $payloadZip }
+
+function Add-AppendedPayload {
+    param(
+        [Parameter(Mandatory = $true)][string]$ExecutablePath,
+        [Parameter(Mandatory = $true)][string]$PayloadPath
+    )
+
+    $marker = [Text.Encoding]::ASCII.GetBytes('PCKGUI-PAYLOAD-1')
+    $payloadLength = (Get-Item -LiteralPath $PayloadPath).Length
+    $target = [IO.File]::Open($ExecutablePath, [IO.FileMode]::Append, [IO.FileAccess]::Write, [IO.FileShare]::None)
+    try {
+        $payload = [IO.File]::OpenRead($PayloadPath)
+        try {
+            $payload.CopyTo($target)
+        } finally {
+            $payload.Dispose()
+        }
+        $target.Write([BitConverter]::GetBytes([int64]$payloadLength), 0, 8)
+        $target.Write($marker, 0, $marker.Length)
+    } finally {
+        $target.Dispose()
+    }
+}
 
 function Update-LocalRelease {
     param(
@@ -108,10 +130,10 @@ try {
         -product "PC-Konfigurator-GUI" `
         -description "GUI-Assistent zur automatisierten Konfiguration von Windows-/Office-Arbeitsumgebungen (Vorlagen, Schriftarten, Corporate Design, Outlook-Signaturen)." `
         -copyright "(c) Thomas Gorontzy" `
-        -embedFiles $embeddedFiles `
         -ErrorAction Stop
 
     if (Test-Path $OutputExe) {
+        Add-AppendedPayload -ExecutablePath $OutputExe -PayloadPath $payloadZip
         $exeInfo = Get-Item $OutputExe
         Write-Host "Build erfolgreich: $($exeInfo.FullName) ($([Math]::Round($exeInfo.Length / 1MB, 2)) MB)" -ForegroundColor Green
         Update-LocalRelease -ExecutablePath $exeInfo.FullName -ReleaseVersion $Version

@@ -31,7 +31,7 @@ function Show-PreparationWindow {
     $window = New-Object System.Windows.Window
     $window.Title = 'PC-Konfigurator-GUI wird vorbereitet'
     $window.Width = 560
-    $window.Height = 235
+    $window.Height = 390
     $window.WindowStartupLocation = 'CenterScreen'
     $window.ResizeMode = 'NoResize'
     $window.WindowStyle = 'SingleBorderWindow'
@@ -58,7 +58,15 @@ function Show-PreparationWindow {
     $status.Text = 'Vorbereitung wird gestartet ...'
     $status.FontWeight = 'SemiBold'
     $status.Foreground = [System.Windows.Media.Brushes]::DarkSlateGray
+    $status.Margin = '0,0,0,8'
     [void]$panel.Children.Add($status)
+
+    $activityLog = New-Object System.Windows.Controls.ListBox
+    $activityLog.Height = 150
+    $activityLog.IsHitTestVisible = $false
+    $activityLog.FontFamily = 'Consolas'
+    $activityLog.FontSize = 11
+    [void]$panel.Children.Add($activityLog)
 
     $window.Content = $panel
     $window.Show()
@@ -68,6 +76,7 @@ function Show-PreparationWindow {
     return [pscustomobject]@{
         Window = $window
         Status = $status
+        ActivityLog = $activityLog
     }
 }
 
@@ -82,6 +91,96 @@ function Set-PreparationWindowStatus {
     $PreparationWindow.Window.Dispatcher.Invoke([Action] {}, [System.Windows.Threading.DispatcherPriority]::Render)
 }
 
+function Add-PreparationWindowEntry {
+    param(
+        [Parameter(Mandatory = $true)]$PreparationWindow,
+        [Parameter(Mandatory = $true)][string]$Message
+    )
+
+    [void]$PreparationWindow.ActivityLog.Items.Add($Message)
+    $PreparationWindow.ActivityLog.ScrollIntoView($Message)
+    $PreparationWindow.Window.UpdateLayout()
+    $PreparationWindow.Window.Dispatcher.Invoke([Action] {}, [System.Windows.Threading.DispatcherPriority]::Render)
+}
+
+function Get-AppendedPayload {
+    param(
+        [Parameter(Mandatory = $true)][string]$ExecutablePath,
+        [Parameter(Mandatory = $true)][string]$DestinationPath
+    )
+
+    $payloadMarker = [Text.Encoding]::ASCII.GetBytes('PCKGUI-PAYLOAD-1')
+    $footerLength = $payloadMarker.Length + 8
+    $source = [IO.File]::Open($ExecutablePath, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+    try {
+        if ($source.Length -lt $footerLength) {
+            throw 'Das eingebettete Laufzeitpaket wurde nicht gefunden.'
+        }
+
+        $source.Position = $source.Length - $footerLength
+        $payloadLengthBytes = New-Object byte[] 8
+        [void]$source.Read($payloadLengthBytes, 0, $payloadLengthBytes.Length)
+        $payloadLength = [BitConverter]::ToInt64($payloadLengthBytes, 0)
+        $markerBytes = New-Object byte[] $payloadMarker.Length
+        [void]$source.Read($markerBytes, 0, $markerBytes.Length)
+        if (-not [Linq.Enumerable]::SequenceEqual[byte]($markerBytes, $payloadMarker)) {
+            throw 'Das eingebettete Laufzeitpaket ist ungültig.'
+        }
+
+        $payloadOffset = $source.Length - $footerLength - $payloadLength
+        if ($payloadLength -le 0 -or $payloadOffset -lt 0) {
+            throw 'Die Größe des eingebetteten Laufzeitpakets ist ungültig.'
+        }
+
+        $source.Position = $payloadOffset
+        $destination = [IO.File]::Open($DestinationPath, [IO.FileMode]::Create, [IO.FileAccess]::Write, [IO.FileShare]::None)
+        try {
+            $buffer = New-Object byte[] 1048576
+            $remaining = $payloadLength
+            while ($remaining -gt 0) {
+                $bytesRead = $source.Read($buffer, 0, [Math]::Min($buffer.Length, $remaining))
+                if ($bytesRead -le 0) { throw 'Das Laufzeitpaket konnte nicht vollständig gelesen werden.' }
+                $destination.Write($buffer, 0, $bytesRead)
+                $remaining -= $bytesRead
+            }
+        } finally {
+            $destination.Dispose()
+        }
+    } finally {
+        $source.Dispose()
+    }
+}
+
+function Expand-PayloadWithProgress {
+    param(
+        [Parameter(Mandatory = $true)][string]$PayloadPath,
+        [Parameter(Mandatory = $true)][string]$DestinationPath,
+        [Parameter(Mandatory = $true)]$PreparationWindow
+    )
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem -ErrorAction Stop
+    $destinationRoot = [IO.Path]::GetFullPath($DestinationPath).TrimEnd('\') + '\'
+    $archive = [IO.Compression.ZipFile]::OpenRead($PayloadPath)
+    try {
+        $fileEntries = @($archive.Entries | Where-Object { -not [string]::IsNullOrEmpty($_.Name) })
+        $entryIndex = 0
+        foreach ($entry in $fileEntries) {
+            $entryIndex++
+            $targetPath = [IO.Path]::GetFullPath((Join-Path $DestinationPath $entry.FullName))
+            if (-not $targetPath.StartsWith($destinationRoot, [StringComparison]::OrdinalIgnoreCase)) {
+                throw "Ungültiger Pfad im Laufzeitpaket: $($entry.FullName)"
+            }
+
+            Set-PreparationWindowStatus -PreparationWindow $PreparationWindow -Message "Laufzeitdateien werden eingerichtet ($entryIndex/$($fileEntries.Count)) ..."
+            Add-PreparationWindowEntry -PreparationWindow $PreparationWindow -Message "Entpacke: $($entry.FullName)"
+            New-Item -ItemType Directory -Path (Split-Path -Path $targetPath -Parent) -Force | Out-Null
+            [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $targetPath, $true)
+        }
+    } finally {
+        $archive.Dispose()
+    }
+}
+
 if (-not $isScriptHost) {
     $currentExecutable = [Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
     $currentRoot = Split-Path -Path $currentExecutable -Parent
@@ -90,12 +189,14 @@ if (-not $isScriptHost) {
     $currentRootFull = [IO.Path]::GetFullPath($currentRoot).TrimEnd('\')
     $localAppDataRootFull = [IO.Path]::GetFullPath($localAppDataRoot).TrimEnd('\')
     $embeddedPayload = Join-Path $localAppDataRoot '_embedded-payload.zip'
-    if (Test-Path -LiteralPath $embeddedPayload -PathType Leaf) {
+    if ($currentRootFull -ine $localAppDataRootFull) {
         $preparationWindow = $null
         try {
+            New-Item -ItemType Directory -Path $localAppDataRoot -Force | Out-Null
             $preparationWindow = Show-PreparationWindow
-            Set-PreparationWindowStatus -PreparationWindow $preparationWindow -Message 'Laufzeitdateien werden eingerichtet ...'
-            Expand-Archive -LiteralPath $embeddedPayload -DestinationPath $localAppDataRoot -Force -ErrorAction Stop
+            Add-PreparationWindowEntry -PreparationWindow $preparationWindow -Message 'Lese eingebettetes Laufzeitpaket ...'
+            Get-AppendedPayload -ExecutablePath $currentExecutable -DestinationPath $embeddedPayload
+            Expand-PayloadWithProgress -PayloadPath $embeddedPayload -DestinationPath $localAppDataRoot -PreparationWindow $preparationWindow
             Set-PreparationWindowStatus -PreparationWindow $preparationWindow -Message 'Vorbereitung abgeschlossen. Der Assistent wird gestartet ...'
             Remove-Item -LiteralPath $embeddedPayload -Force
         } catch {

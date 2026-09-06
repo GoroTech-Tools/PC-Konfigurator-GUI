@@ -15,9 +15,12 @@ eigenes AppData-Verzeichnis als `ScriptRoot`.
 Während der Extraktion zeigt `Show-PreparationWindow` ein eigenes Fenster der
 Windows Presentation Foundation. Es informiert mit dem Text „Zur Vorbereitung
 wird der PC-Konfigurator in Ihrem System hinterlegt. Es geht gleich weiter.“
-und aktualisiert den sichtbaren Vorbereitungsschritt. So bleibt der
-Selbstinstallationsablauf nachvollziehbar, ohne dass Meldungen von
-`Expand-Archive` in einer Konsole erscheinen müssen.
+und aktualisiert den sichtbaren Vorbereitungsschritt. Das Laufzeitpaket wird
+an die EXE angehängt und erst nach Start des Skripts verarbeitet; dadurch kann
+die Anwendung jeden entpackten Eintrag direkt im Fenster protokollieren. Die
+PS2EXE-Option `-embedFiles` wird bewusst nicht verwendet, weil sie Dateien
+bereits vor dem Skriptstart extrahiert und daher keine eigene Fortschrittsanzeige
+ermöglicht.
 
 Bei jedem Start aus einem Releaseordner werden EXE, `Datei-Vorlagen`, `Fonts`,
 `docs` und die Hilfsskripte mit `-Force` nach `%LOCALAPPDATA%\PC-Konfigurator-GUI`
