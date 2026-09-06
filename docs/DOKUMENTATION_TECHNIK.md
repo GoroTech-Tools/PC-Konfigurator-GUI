@@ -51,6 +51,11 @@ Die Standardvorlagen werden ohne COM-Schriftbearbeitung ausgewählt und kopiert:
 
 Vorhandene Zieldateien werden in `Dokumente\PC-Konfigurator-GUI\Backups\Vorlagen_<Zeitstempel>` gesichert. Erst wenn alle drei Quelldateien vorhanden sind, erfolgt die Übernahme.
 
+Nach der Übernahme wird die gewählte `.thmx`-Datei in `Normal.dotm`,
+`Mappe.xltx` und `NormalEmail.dotm` eingebettet. Dadurch verwenden neue Word-,
+Excel- und klassische Outlook-Dateien das ausgewählte Corporate Design, nicht
+nur eine in den Office-Theme-Ordner kopierte Design-Datei.
+
 ## Outlook
 
 Für klassisches Outlook schreibt `Set-OutlookRegistry` die Werte unter `HKCU\Software\Microsoft\Office\<Version>` und `Common\MailSettings`.

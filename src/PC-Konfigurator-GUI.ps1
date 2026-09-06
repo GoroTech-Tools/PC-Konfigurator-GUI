@@ -2708,8 +2708,13 @@ function Invoke-PCKonfiguratorPipeline {
     # Aufruf der Funktionen NACH der Schriftart- und Schriftgrößen-Auswahl
     Write-Host -ForegroundColor Cyan "⏳ Schritt 2/7: Word-Vorlagen werden angepasst..."
     Write-Host -ForegroundColor Cyan " "
-    Write-Log "Schritt 2/7: Vorbereitete Normal.dotm wurde bereits ohne COM-Automatisierung übernommen." "INFO"
-    Write-Host -foregroundcolor Green "  ✓ Schritt 2/7 abgeschlossen: Vorbereitete Word-Vorlage wurde übernommen."
+    if ($selectedOfficeThemePath) {
+        Set-WordCustomizer -FontName $ActualFontName -FontSize $FontSizeWord
+        Write-Host -foregroundcolor Green "  ✓ Schritt 2/7 abgeschlossen: Word-Vorlage und Corporate Design wurden übernommen."
+    } else {
+        Write-Log "Schritt 2/7: Kein Corporate-Design verfügbar; die vorbereitete Normal.dotm wurde ohne Theme-Einbettung übernommen." "WARN"
+        Write-Host -ForegroundColor Cyan "  ⚠ Schritt 2/7 abgeschlossen mit Hinweis: Corporate Design konnte nicht eingebettet werden."
+    }
 
     Write-Host -ForegroundColor Cyan "⏳ Schritt 3/7: Word-Lernsituationen werden angepasst..."
     Write-Host -ForegroundColor Cyan " "
@@ -2718,8 +2723,14 @@ function Invoke-PCKonfiguratorPipeline {
 
     Write-Host -ForegroundColor Cyan "⏳ Schritt 4/7: Excel-Vorlagen werden angepasst..."
     Write-Host -ForegroundColor Cyan " "
-    Write-Log "Schritt 4/7: Vorbereitete Mappe.xltx und NormalEmail.dotm wurden bereits ohne COM-Automatisierung übernommen." "INFO"
-    Write-Host -foregroundcolor Green "  ✓ Schritt 4/7 abgeschlossen: Vorbereitete Excel- und Outlook-Vorlagen wurden übernommen."
+    if ($selectedOfficeThemePath) {
+        Set-ExcelCustomizer -FontName $ActualFontName -FontSize $FontSizeExcel
+        Set-OutlookTemplateTheme -ThemePath $selectedOfficeThemePath -FontName $ActualFontName -FontSize $FontSizeWord
+        Write-Host -foregroundcolor Green "  ✓ Schritt 4/7 abgeschlossen: Excel-, Outlook-Vorlagen und Corporate Design wurden übernommen."
+    } else {
+        Write-Log "Schritt 4/7: Kein Corporate-Design verfügbar; Mappe.xltx und NormalEmail.dotm wurden ohne Theme-Einbettung übernommen." "WARN"
+        Write-Host -ForegroundColor Cyan "  ⚠ Schritt 4/7 abgeschlossen mit Hinweis: Corporate Design konnte nicht eingebettet werden."
+    }
 
     Write-Host -ForegroundColor Cyan "⏳ Schritt 5/7: Registry-Einstellungen werden gesetzt..."
     Write-Host -ForegroundColor Cyan " "
@@ -3326,6 +3337,49 @@ $script:PipelineHandle = $null
 $script:PipelineRunspace = $null
 $script:PipelineResult = $null
 $script:UiTimer = $null
+$script:FinalizePowerShell = $null
+$script:FinalizeHandle = $null
+$script:FinalizeRunspace = $null
+$script:FinalizeTimer = $null
+$script:TestUiTimer = $null
+$script:IsShuttingDown = $false
+
+function Stop-PCKonfiguratorBackgroundWork {
+    if ($script:IsShuttingDown) { return }
+    $script:IsShuttingDown = $true
+
+    foreach ($timerName in @('UiTimer', 'FinalizeTimer', 'TestUiTimer')) {
+        $timer = Get-Variable -Name $timerName -Scope Script -ValueOnly -ErrorAction SilentlyContinue
+        if ($timer) {
+            try { $timer.Stop() } catch { $null = $_.Exception.Message }
+            Set-Variable -Name $timerName -Scope Script -Value $null
+        }
+    }
+
+    foreach ($work in @(
+            @{ PowerShell = 'PipelinePowerShell'; Handle = 'PipelineHandle'; Runspace = 'PipelineRunspace' },
+            @{ PowerShell = 'FinalizePowerShell'; Handle = 'FinalizeHandle'; Runspace = 'FinalizeRunspace' }
+        )) {
+        $powerShell = Get-Variable -Name $work.PowerShell -Scope Script -ValueOnly -ErrorAction SilentlyContinue
+        if ($powerShell) {
+            try {
+                if ($powerShell.InvocationStateInfo.State -eq 'Running') {
+                    $powerShell.Stop()
+                }
+            } catch { $null = $_.Exception.Message }
+            try { $powerShell.Dispose() } catch { $null = $_.Exception.Message }
+            Set-Variable -Name $work.PowerShell -Scope Script -Value $null
+        }
+
+        $runspace = Get-Variable -Name $work.Runspace -Scope Script -ValueOnly -ErrorAction SilentlyContinue
+        if ($runspace) {
+            try { $runspace.Close() } catch { $null = $_.Exception.Message }
+            try { $runspace.Dispose() } catch { $null = $_.Exception.Message }
+            Set-Variable -Name $work.Runspace -Scope Script -Value $null
+        }
+        Set-Variable -Name $work.Handle -Scope Script -Value $null
+    }
+}
 
 function Write-LogLine {
     param([string]$Line)
@@ -3418,9 +3472,16 @@ function Start-BackgroundPipeline {
                     Write-LogLine -Line "[FEHLER] Pipeline-Ausführung fehlgeschlagen: $($_.Exception.Message)"
                     $ctrl['lblExecutionStatus'].Text = 'Konfiguration fehlgeschlagen.'
                 } finally {
-                    $script:PipelinePowerShell.Dispose()
-                    $script:PipelineRunspace.Close()
-                    $script:PipelineRunspace.Dispose()
+                    if ($script:PipelinePowerShell) {
+                        $script:PipelinePowerShell.Dispose()
+                        $script:PipelinePowerShell = $null
+                    }
+                    if ($script:PipelineRunspace) {
+                        $script:PipelineRunspace.Close()
+                        $script:PipelineRunspace.Dispose()
+                        $script:PipelineRunspace = $null
+                    }
+                    $script:PipelineHandle = $null
                 }
             }
         })
@@ -3436,6 +3497,7 @@ $ctrl['btnStartPipeline'].Add_Click({
 
 # --- Seite F: Abschluss ---
 function Close-PCKonfiguratorApplication {
+    Stop-PCKonfiguratorBackgroundWork
     if ($window) {
         $window.Close()
     }
@@ -3447,6 +3509,7 @@ function Close-PCKonfiguratorApplication {
 }
 
 $window.Add_Closed({
+    Stop-PCKonfiguratorBackgroundWork
     $application = [System.Windows.Application]::Current
     if ($application) {
         $application.Shutdown()
@@ -3470,43 +3533,51 @@ $ctrl['btnFinish'].Add_Click({
         }
 
         $finalizeInitialState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
-        $finalizeRunspace = [runspacefactory]::CreateRunspace($finalizeInitialState)
-        $finalizeRunspace.ApartmentState = 'STA'
-        $finalizeRunspace.ThreadOptions = 'ReuseThread'
-        $finalizeRunspace.Open()
+        $script:FinalizeRunspace = [runspacefactory]::CreateRunspace($finalizeInitialState)
+        $script:FinalizeRunspace.ApartmentState = 'STA'
+        $script:FinalizeRunspace.ThreadOptions = 'ReuseThread'
+        $script:FinalizeRunspace.Open()
 
-        $finalizePowerShell = [powershell]::Create()
-        $finalizePowerShell.Runspace = $finalizeRunspace
+        $script:FinalizePowerShell = [powershell]::Create()
+        $script:FinalizePowerShell.Runspace = $script:FinalizeRunspace
         $finalizeFunctionText = (Get-Item function:Invoke-PCKonfiguratorFinalize).Definition
-        [void]$finalizePowerShell.AddScript("function Invoke-PCKonfiguratorFinalize { $finalizeFunctionText }")
-        [void]$finalizePowerShell.AddScript('param($Params) Invoke-PCKonfiguratorFinalize -Params $Params')
-        [void]$finalizePowerShell.AddArgument($finalizeParams)
+        [void]$script:FinalizePowerShell.AddScript("function Invoke-PCKonfiguratorFinalize { $finalizeFunctionText }")
+        [void]$script:FinalizePowerShell.AddScript('param($Params) Invoke-PCKonfiguratorFinalize -Params $Params')
+        [void]$script:FinalizePowerShell.AddArgument($finalizeParams)
 
-        $finalizeHandle = $finalizePowerShell.BeginInvoke()
+        $script:FinalizeHandle = $script:FinalizePowerShell.BeginInvoke()
 
-        $finalizeTimer = New-Object System.Windows.Threading.DispatcherTimer
-        $finalizeTimer.Interval = [TimeSpan]::FromMilliseconds(500)
-        $finalizeTimer.Add_Tick({
+        $script:FinalizeTimer = New-Object System.Windows.Threading.DispatcherTimer
+        $script:FinalizeTimer.Interval = [TimeSpan]::FromMilliseconds(500)
+        $script:FinalizeTimer.Add_Tick({
                 $lineText = $null
                 while ($script:UiQueue.TryDequeue([ref]$lineText)) {
                     Write-LogLine -Line $lineText
                 }
-                if ($finalizeHandle.IsCompleted) {
-                    $finalizeTimer.Stop()
+                if ($script:FinalizeHandle -and $script:FinalizeHandle.IsCompleted) {
+                    $script:FinalizeTimer.Stop()
                     try {
-                        $null = $finalizePowerShell.EndInvoke($finalizeHandle)
+                        $null = $script:FinalizePowerShell.EndInvoke($script:FinalizeHandle)
                     } catch {
                         Write-LogLine -Line "[FEHLER] Abschlussarbeiten fehlgeschlagen: $($_.Exception.Message)"
                     } finally {
-                        $finalizePowerShell.Dispose()
-                        $finalizeRunspace.Close()
-                        $finalizeRunspace.Dispose()
+                        if ($script:FinalizePowerShell) {
+                            $script:FinalizePowerShell.Dispose()
+                            $script:FinalizePowerShell = $null
+                        }
+                        if ($script:FinalizeRunspace) {
+                            $script:FinalizeRunspace.Close()
+                            $script:FinalizeRunspace.Dispose()
+                            $script:FinalizeRunspace = $null
+                        }
+                        $script:FinalizeHandle = $null
+                        $script:FinalizeTimer = $null
                     }
                     [System.Windows.MessageBox]::Show("Der PC-Konfigurator hat Ihren Rechner erfolgreich konfiguriert.", "Fertig", 'OK', 'Information') | Out-Null
                     Close-PCKonfiguratorApplication
                 }
             })
-        $finalizeTimer.Start()
+        $script:FinalizeTimer.Start()
     })
 
 # ----------------------------------------------------------------------------
@@ -3524,13 +3595,14 @@ Show-WizardPage 'PanelWelcome'
 if ($script:TestUIMode) {
     # Reiner Rendertest: Fenster anzeigen und nach 2 Sekunden automatisch schließen,
     # OHNE jegliche echte Registry-/Datei-Änderung vorzunehmen.
-    $testUiTimer = New-Object System.Windows.Threading.DispatcherTimer
-    $testUiTimer.Interval = [TimeSpan]::FromSeconds(2)
-    $testUiTimer.Add_Tick({
-            $testUiTimer.Stop()
+    $script:TestUiTimer = New-Object System.Windows.Threading.DispatcherTimer
+    $script:TestUiTimer.Interval = [TimeSpan]::FromSeconds(2)
+    $script:TestUiTimer.Add_Tick({
+            $script:TestUiTimer.Stop()
+            $script:TestUiTimer = $null
             $window.Close()
         })
-    $testUiTimer.Start()
+    $script:TestUiTimer.Start()
 }
 
 [void]$window.ShowDialog()
