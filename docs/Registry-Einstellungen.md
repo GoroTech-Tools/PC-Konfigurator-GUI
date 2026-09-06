@@ -1,7 +1,7 @@
 # Verwendete Registry-Einstellungen
 
 <!-- release-metadata:start -->
-> **Release-Version:** 1.0.2  
+> **Release-Version:** 1.0.3  
 > **Stand:** 2026-09-06
 <!-- release-metadata:end -->
 

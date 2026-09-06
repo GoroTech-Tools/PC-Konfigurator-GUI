@@ -35,6 +35,10 @@ if ([string]::IsNullOrWhiteSpace($SourceScript)) {
 if ([string]::IsNullOrWhiteSpace($OutputExe)) {
     $OutputExe = Join-Path $projectRoot 'build\PC-Konfigurator-GUI.exe'
 }
+$iconFile = Join-Path $projectRoot 'src\app_icon.ico'
+if (-not (Test-Path -LiteralPath $iconFile -PathType Leaf)) {
+    throw "Anwendungssymbol fehlt: $iconFile"
+}
 
 Write-Host "=== PC-Konfigurator-GUI Build ===" -ForegroundColor Cyan
 Write-Host "Version: $Version (Dateiversion: $fileVersion)" -ForegroundColor Cyan
@@ -137,6 +141,7 @@ try {
         -inputFile $SourceScript `
         -outputFile $OutputExe `
         -noConsole `
+        -iconFile $iconFile `
         -title "PC-Konfigurator-GUI" `
         -version $fileVersion `
         -company "Thomas Gorontzy" `
