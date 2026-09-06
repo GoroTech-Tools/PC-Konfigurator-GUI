@@ -1575,6 +1575,71 @@ function Invoke-PCKonfiguratorPipeline {
         return (Resolve-Path -LiteralPath $sourcePath).Path
     }
 
+    function Set-OfficeTemplateThemeXml {
+        param(
+            [Parameter(Mandatory = $true)][string]$TemplatePath,
+            [Parameter(Mandatory = $true)][string]$TemplateThemeEntry,
+            [Parameter(Mandatory = $true)][string]$ThemePath
+        )
+
+        if (-not (Test-Path -LiteralPath $TemplatePath -PathType Leaf)) {
+            Write-Log "Theme-Einbettung übersprungen; Vorlage fehlt: $TemplatePath" "WARN"
+            return $false
+        }
+
+        try {
+            Add-Type -AssemblyName System.IO.Compression.FileSystem -ErrorAction Stop
+            $themeArchive = [IO.Compression.ZipFile]::OpenRead($ThemePath)
+            try {
+                $themeEntry = $themeArchive.Entries |
+                    Where-Object { $_.FullName -eq 'theme/theme/theme1.xml' } |
+                    Select-Object -First 1
+                if (-not $themeEntry) {
+                    throw "theme1.xml wurde nicht gefunden: $ThemePath"
+                }
+
+                $themeReader = New-Object IO.StreamReader($themeEntry.Open())
+                try {
+                    $themeXml = $themeReader.ReadToEnd()
+                } finally {
+                    $themeReader.Dispose()
+                }
+            } finally {
+                $themeArchive.Dispose()
+            }
+
+            $temporaryPath = "$TemplatePath.$([guid]::NewGuid()).tmp"
+            Copy-Item -LiteralPath $TemplatePath -Destination $temporaryPath -Force
+            $templateArchive = [IO.Compression.ZipFile]::Open($temporaryPath, [IO.Compression.ZipArchiveMode]::Update)
+            try {
+                $existingEntry = $templateArchive.GetEntry($TemplateThemeEntry)
+                if ($existingEntry) {
+                    $existingEntry.Delete()
+                }
+
+                $newEntry = $templateArchive.CreateEntry($TemplateThemeEntry, [IO.Compression.CompressionLevel]::Optimal)
+                $themeWriter = New-Object IO.StreamWriter($newEntry.Open(), (New-Object Text.UTF8Encoding($false)))
+                try {
+                    $themeWriter.Write($themeXml)
+                } finally {
+                    $themeWriter.Dispose()
+                }
+            } finally {
+                $templateArchive.Dispose()
+            }
+
+            Move-Item -LiteralPath $temporaryPath -Destination $TemplatePath -Force
+            Write-Log "Corporate Design direkt in Vorlage eingebettet: $TemplatePath" "INFO"
+            return $true
+        } catch {
+            if ($temporaryPath -and (Test-Path -LiteralPath $temporaryPath)) {
+                Remove-Item -LiteralPath $temporaryPath -Force -ErrorAction SilentlyContinue
+            }
+            Write-Log "Corporate Design konnte nicht direkt in Vorlage eingebettet werden: $TemplatePath ($($_.Exception.Message))" "ERROR"
+            return $false
+        }
+    }
+
     function Sync-OfficeQuickAccessToolbarTemplates {
         $templateCandidates = @(
             (Join-Path $AssetRoot 'Datei-Vorlagen\Sonstiges\Symbolleiste Schnellzugriff')
@@ -2272,6 +2337,18 @@ function Invoke-PCKonfiguratorPipeline {
         throw
     }
     $selectedOfficeThemePath = Install-SelectedOfficeTheme -FontName $ActualFontName -Design $selectedDesign
+    if ($selectedOfficeThemePath) {
+        $templateThemeTargets = @(
+            @{ Path = (Join-Path $env:APPDATA 'Microsoft\Templates\Normal.dotm'); Entry = 'word/theme/theme1.xml' },
+            @{ Path = (Join-Path $env:APPDATA 'Microsoft\Templates\NormalEmail.dotm'); Entry = 'word/theme/theme1.xml' },
+            @{ Path = (Join-Path $env:APPDATA 'Microsoft\Excel\XLSTART\Mappe.xltx'); Entry = 'xl/theme/theme1.xml' }
+        )
+        foreach ($templateThemeTarget in $templateThemeTargets) {
+            if (-not (Set-OfficeTemplateThemeXml -TemplatePath $templateThemeTarget.Path -TemplateThemeEntry $templateThemeTarget.Entry -ThemePath $selectedOfficeThemePath)) {
+                throw "Corporate Design konnte nicht in die Vorlage eingebettet werden: $($templateThemeTarget.Path)"
+            }
+        }
+    }
     Set-OfficeRegistrySettings -FontName $ActualFontName -FontSizeWord $FontSizeWord -FontSizeExcel $FontSizeExcel -ShowHiddenItems ([bool]$Params.ShowHiddenItems)
     $templateSyncResult = Sync-OfficeQuickAccessToolbarTemplates
     if ($templateSyncResult) {

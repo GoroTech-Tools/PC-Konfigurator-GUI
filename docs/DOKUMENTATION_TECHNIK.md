@@ -66,6 +66,12 @@ Nach der Übernahme wird die gewählte `.thmx`-Datei in `Normal.dotm`,
 Excel- und klassische Outlook-Dateien das ausgewählte Corporate Design, nicht
 nur eine in den Office-Theme-Ordner kopierte Design-Datei.
 
+Die Einbettung ersetzt `word/theme/theme1.xml` beziehungsweise
+`xl/theme/theme1.xml` direkt im Open-XML-Container der Vorlage. Dadurch
+erscheinen die gewählten Akzentfarben zuverlässig auch in **Füllfarbe**,
+Rahmenfarbe und vergleichbaren Office-Farbpaletten, unabhängig von der
+Verfügbarkeit der Office-COM-Automatisierung.
+
 Zusätzlich extrahiert die Anwendung das Farbschema aus der gewählten
 `.thmx`-Datei und installiert es als `INN-tegrativ.xml`, `DBK.xml` oder
 `Careli.xml` unter `%APPDATA%\Microsoft\Templates\Theme Colors`.
