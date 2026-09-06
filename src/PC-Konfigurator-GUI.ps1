@@ -1531,6 +1531,47 @@ function Invoke-PCKonfiguratorPipeline {
             }
         }
 
+        # Office führt benutzerdefinierte Farbschemata getrennt von kompletten
+        # .thmx-Dateien. Das Farbschema wird deshalb zusätzlich aus dem
+        # ausgewählten Theme extrahiert, damit es in Farbauswahllisten erscheint.
+        try {
+            Add-Type -AssemblyName System.IO.Compression.FileSystem -ErrorAction Stop
+            $themeArchive = [IO.Compression.ZipFile]::OpenRead($sourcePath)
+            try {
+                $themeEntry = $themeArchive.Entries |
+                    Where-Object { $_.FullName -eq 'theme/theme/theme1.xml' } |
+                    Select-Object -First 1
+                if (-not $themeEntry) {
+                    throw "theme1.xml wurde nicht gefunden: $sourcePath"
+                }
+
+                $themeReader = New-Object IO.StreamReader($themeEntry.Open())
+                try {
+                    [xml]$themeXml = $themeReader.ReadToEnd()
+                } finally {
+                    $themeReader.Dispose()
+                }
+            } finally {
+                $themeArchive.Dispose()
+            }
+
+            $namespaceManager = New-Object Xml.XmlNamespaceManager($themeXml.NameTable)
+            $namespaceManager.AddNamespace('a', 'http://schemas.openxmlformats.org/drawingml/2006/main')
+            $colorScheme = $themeXml.SelectSingleNode('//a:themeElements/a:clrScheme', $namespaceManager)
+            if (-not $colorScheme) {
+                throw "Farbschema wurde nicht gefunden: $sourcePath"
+            }
+
+            $themeColorsDirectory = Join-Path $env:APPDATA 'Microsoft\Templates\Document Themes\Theme Colors'
+            New-Item -ItemType Directory -Path $themeColorsDirectory -Force | Out-Null
+            $themeColorsPath = Join-Path $themeColorsDirectory "$Design.xml"
+            $colorSchemeXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + [Environment]::NewLine + $colorScheme.OuterXml
+            [IO.File]::WriteAllText($themeColorsPath, $colorSchemeXml, (New-Object Text.UTF8Encoding($false)))
+            Write-Log "Office-Farbschema für die Auswahlliste installiert: $themeColorsPath" "INFO"
+        } catch {
+            Write-Log "Office-Farbschema konnte nicht für die Auswahlliste installiert werden: $($_.Exception.Message)" "WARN"
+        }
+
         return (Resolve-Path -LiteralPath $sourcePath).Path
     }
 

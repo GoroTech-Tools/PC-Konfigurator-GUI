@@ -67,6 +67,11 @@ Die GUI verändert die Standardvorlagen nicht per COM. Sie wählt die passende, 
 
 Vorhandene Benutzerdateien werden vor dem Überschreiben unter `Dokumente\PC-Konfigurator-GUI\Backups` gesichert.
 
+Das gewählte Corporate Design wird außerdem in den Farbauswahllisten von
+Office bereitgestellt. Schließen und öffnen Sie Word, Excel oder klassisches
+Outlook nach der Konfiguration erneut, damit die aktualisierte Farbliste
+eingelesen wird.
+
 ## Schriftartauswahl
 
 Zur Auswahl stehen Aptos, Aptos Narrow, Arial, Calibri, Futura, PT Sans, Roboto und Segoe UI. Standardmäßig gelten Aptos, 11 pt für Word/Outlook und 10 pt für Excel.

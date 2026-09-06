@@ -66,6 +66,12 @@ Nach der Übernahme wird die gewählte `.thmx`-Datei in `Normal.dotm`,
 Excel- und klassische Outlook-Dateien das ausgewählte Corporate Design, nicht
 nur eine in den Office-Theme-Ordner kopierte Design-Datei.
 
+Zusätzlich extrahiert die Anwendung das Farbschema aus der gewählten
+`.thmx`-Datei und installiert es als `INN-tegrativ.xml`, `DBK.xml` oder
+`Careli.xml` unter `%APPDATA%\Microsoft\Templates\Document Themes\Theme Colors`.
+Damit steht das Corporate Design auch in den Office-Farbauswahllisten bereit;
+Office muss anschließend neu gestartet werden.
+
 ## Outlook
 
 Für klassisches Outlook schreibt `Set-OutlookRegistry` die Werte unter `HKCU\Software\Microsoft\Office\<Version>` und `Common\MailSettings`.
