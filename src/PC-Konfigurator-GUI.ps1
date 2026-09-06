@@ -1332,6 +1332,7 @@ function Invoke-PCKonfiguratorPipeline {
             [string]$FontName = "Aptos",
             [int]$FontSizeWord = 11,
             [int]$FontSizeExcel = 10,
+            [bool]$ShowHiddenItems = $true,
             $wordSettings = @{
                 "DeveloperTools" = 1
                 "Ruler" = 1
@@ -1365,7 +1366,7 @@ function Invoke-PCKonfiguratorPipeline {
             },
             $windowsSettings = @{
                 "HideFileExt" = 0
-                "Hidden" = 1
+                "Hidden" = if ($ShowHiddenItems) { 1 } else { 2 }
                 "ShowSuperHidden" = 0
             }
         )
@@ -1422,6 +1423,7 @@ function Invoke-PCKonfiguratorPipeline {
         Set-RegistryValues $regPathExcel $excelSettings
         Set-RegistryValues $regPathWindows $windowsSettings
 
+        Write-Log "Anzeige versteckter Elemente: $(if ($ShowHiddenItems) { 'aktiviert' } else { 'deaktiviert' })" "INFO"
         Write-Log "Die empfohlenen Office-Einstellungen wurden erfolgreich gesetzt." "INFO"
     }
 
@@ -2229,7 +2231,7 @@ function Invoke-PCKonfiguratorPipeline {
         throw
     }
     $selectedOfficeThemePath = Install-SelectedOfficeTheme -FontName $ActualFontName -Design $selectedDesign
-    Set-OfficeRegistrySettings -FontName $ActualFontName -FontSizeWord $FontSizeWord -FontSizeExcel $FontSizeExcel
+    Set-OfficeRegistrySettings -FontName $ActualFontName -FontSizeWord $FontSizeWord -FontSizeExcel $FontSizeExcel -ShowHiddenItems ([bool]$Params.ShowHiddenItems)
     $templateSyncResult = Sync-OfficeQuickAccessToolbarTemplates
     if ($templateSyncResult) {
         Write-Log "Vorlagen für Schnellzugriffe aus 'Datei-Vorlagen\Sonstiges\Symbolleiste Schnellzugriff' wurden übernommen." "INFO"
@@ -3201,6 +3203,11 @@ Aktivieren Sie das Kontrollkästchen, um eine individuelle Auswahl zu treffen.
                 <RadioButton x:Name="radTaskbarCenter" GroupName="TaskbarAlignment" Content="Zentriert (Windows-Standard)" IsChecked="True" Margin="0,0,0,4"/>
                 <RadioButton x:Name="radTaskbarLeft" GroupName="TaskbarAlignment" Content="Linksbündig" Margin="0,0,0,8"/>
 
+                <TextBlock Text="Versteckte Elemente im Datei-Explorer" FontWeight="Bold" Margin="0,8,0,6"/>
+                <TextBlock Text="Wählen Sie, ob versteckte Dateien und Ordner im Datei-Explorer angezeigt werden sollen." TextWrapping="Wrap" Margin="0,0,0,6" Foreground="#555555"/>
+                <RadioButton x:Name="radShowHiddenItems" GroupName="HiddenItems" Content="Anzeigen (empfohlen)" IsChecked="True" Margin="0,0,0,4"/>
+                <RadioButton x:Name="radHideHiddenItems" GroupName="HiddenItems" Content="Nicht anzeigen" Margin="0,0,0,8"/>
+
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
                     <Button x:Name="btnFontBack" Content="Zurück" Width="140" Height="32" Margin="0,0,10,0"/>
                     <Button x:Name="btnFontNext" Content="Weiter" Width="140" Height="32"/>
@@ -3269,7 +3276,7 @@ foreach ($name in @(
         'PanelWelcome', 'chkOfficeClosed', 'btnWelcomeNext',
         'PanelTarget', 'radDrive', 'txtDriveLetter', 'radDocuments', 'btnTargetBack', 'btnTargetNext',
         'PanelDesign', 'radDesign1', 'radDesign2', 'radDesign3', 'btnDesignBack', 'btnDesignNext',
-        'PanelFont', 'chkIndividualFonts', 'PanelFontDetails', 'cmbFontName', 'cmbFontSizeWord', 'cmbFontSizeExcel', 'radTaskbarCenter', 'radTaskbarLeft', 'btnFontBack', 'btnFontNext',
+        'PanelFont', 'chkIndividualFonts', 'PanelFontDetails', 'cmbFontName', 'cmbFontSizeWord', 'cmbFontSizeExcel', 'radTaskbarCenter', 'radTaskbarLeft', 'radShowHiddenItems', 'radHideHiddenItems', 'btnFontBack', 'btnFontNext',
         'PanelExecution', 'btnStartPipeline', 'lblExecutionStatus', 'txtLog', 'scrollLog', 'progBar',
         'PanelFinish', 'chkRestartExplorer', 'btnFinish'
     )) {
@@ -3412,6 +3419,7 @@ function Start-BackgroundPipeline {
     $selectedFontSizeExcel = if ($ctrl['cmbFontSizeExcel'].SelectedItem) { [int]$ctrl['cmbFontSizeExcel'].SelectedItem.Content.ToString() } else { 10 }
     $individualFonts = [bool]$ctrl['chkIndividualFonts'].IsChecked
     $taskbarAlignment = if ([bool]$ctrl['radTaskbarLeft'].IsChecked) { 'Left' } else { 'Center' }
+    $showHiddenItems = [bool]$ctrl['radShowHiddenItems'].IsChecked
     if (-not $individualFonts) {
         $selectedFontName = 'Aptos'
         $selectedFontSizeWord = 11
@@ -3433,11 +3441,12 @@ function Start-BackgroundPipeline {
         FontSizeWord    = $selectedFontSizeWord
         FontSizeExcel   = $selectedFontSizeExcel
         TaskbarAlignment = $taskbarAlignment
+        ShowHiddenItems = $showHiddenItems
     }
 
     $ctrl['btnStartPipeline'].IsEnabled = $false
     $ctrl['lblExecutionStatus'].Text = 'Konfiguration läuft...'
-    Write-Log "=== Wizard-Eingaben übernommen: Ziel=$(if ($pipelineParams.UseDocuments) { 'Dokumente' } else { "Laufwerk $($pipelineParams.DriveLetter)" }), Design=$($pipelineParams.SelectedDesign), IndividualFonts=$($pipelineParams.IndividualFonts), Taskleiste=$($pipelineParams.TaskbarAlignment) ===" "INFO"
+    Write-Log "=== Wizard-Eingaben übernommen: Ziel=$(if ($pipelineParams.UseDocuments) { 'Dokumente' } else { "Laufwerk $($pipelineParams.DriveLetter)" }), Design=$($pipelineParams.SelectedDesign), IndividualFonts=$($pipelineParams.IndividualFonts), Taskleiste=$($pipelineParams.TaskbarAlignment), versteckte Elemente=$($pipelineParams.ShowHiddenItems) ===" "INFO"
 
     $initialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
     $script:PipelineRunspace = [runspacefactory]::CreateRunspace($initialSessionState)

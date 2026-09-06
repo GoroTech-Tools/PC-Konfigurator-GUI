@@ -48,6 +48,11 @@ Outlook-Vorlagen mit der passenden Office-Bitness ausgeführt werden.
 
 `Invoke-PCKonfiguratorPipeline` läuft in einem STA-Runspace. Die GUI empfängt Logzeilen über eine thread-sichere Queue und zeigt sie per DispatcherTimer an.
 
+Die Auswahl für versteckte Elemente steuert `Explorer\Advanced\Hidden`: `1`
+zeigt versteckte Dateien und Ordner an, `2` blendet sie aus. Der Standardwert
+ist `1`; geschützte Betriebssystemdateien bleiben mit `ShowSuperHidden = 0`
+weiterhin ausgeblendet.
+
 Die Standardvorlagen werden ohne COM-Schriftbearbeitung ausgewählt und kopiert:
 
 - `Normal-<Font>-<WordSize>.dotm` → `Normal.dotm`

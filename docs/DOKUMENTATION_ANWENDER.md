@@ -43,6 +43,7 @@ Der Assistent führt durch:
 - Corporate Design (INN-tegrativ, DBK oder Careli)
 - Schriftart und Schriftgrößen
 - Taskleisten-Ausrichtung: zentriert (Windows-Standard) oder linksbündig
+- Versteckte Elemente im Datei-Explorer: anzeigen (Standard) oder nicht anzeigen
 - Ausführung mit Live-Log
 - optionalen Explorer-Neustart
 
@@ -54,7 +55,7 @@ Der Assistent führt durch:
 | Excel | vorbereitete `Mappe.xltx`, Standardschrift, Autokorrektur und Schnellzugriff |
 | Outlook | vorbereitete `NormalEmail.dotm`, klassische MailSettings und Signatur-Synchronisation |
 | Schriftarten | Installation mitgelieferter Fonts und Auswahl aus acht Office-Schriftarten |
-| Windows | Explorer-Datenschutz, Suche, Taskleiste und Desktop-Schnellzugriff |
+| Windows | Explorer-Datenschutz, Anzeige versteckter Elemente, Suche, Taskleiste und Desktop-Schnellzugriff |
 
 ## Vorbereitete Vorlagen
 
