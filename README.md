@@ -7,6 +7,19 @@ Anwendung umgesetzt und wird mit PS2EXE als eigenständige EXE kompiliert.
 Autor: Thomas Gorontzy · Version 1.0.0.0
 Plattform: Windows 10 (Build 18362+) / Windows 11, Office 2013+
 
+## Herkunft und Einsatzbereich
+
+Das Vorhaben baut auf dem konsolenbasierten Projekt
+**PC-Konfigurator** auf. Die GUI bildet dessen Konfigurationsabläufe in einem
+WPF-Assistenten ab und ergänzt sie um geführte Auswahl, Systemprüfung,
+Live-Protokollierung und einen automatischen Benutzer-Installationsablauf.
+
+Die Anwendung richtet Arbeitsumgebungen mit vorbereiteten Office-Vorlagen,
+Schriftarten und Corporate-Design-Einstellungen ein. Sie konfiguriert Word,
+Excel und klassisches Outlook, synchronisiert bei Bedarf Outlook-Signaturen
+und nimmt ausgewählte Windows-Explorer-Einstellungen vor. Vor dem Ersetzen
+persönlicher Vorlagen werden Sicherungskopien angelegt.
+
 ## Kernfunktionen
 
 - Synchronisation der Datei-Vorlagen (`Datei-Vorlagen\`) und Schriftarten (`Fonts\`)
