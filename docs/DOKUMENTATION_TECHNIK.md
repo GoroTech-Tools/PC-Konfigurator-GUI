@@ -1,5 +1,10 @@
 # PC-Konfigurator-GUI – Technische Dokumentation
 
+<!-- release-metadata:start -->
+> **Release-Version:** 1.0.2  
+> **Stand:** 2026-09-06
+<!-- release-metadata:end -->
+
 ## Aufbau und Release
 
 Die zentrale Datei `VERSION` enthält die Semantic-Versioning-Angabe im Format

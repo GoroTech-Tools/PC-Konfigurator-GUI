@@ -1,5 +1,10 @@
 # Verwendete Registry-Einstellungen
 
+<!-- release-metadata:start -->
+> **Release-Version:** 1.0.2  
+> **Stand:** 2026-09-06
+<!-- release-metadata:end -->
+
 **Quelle:** `src/PC-Konfigurator-GUI.ps1`
 
 Diese Datei fasst die im Projekt verwendeten Registry-Einstellungen für Windows, Word, Excel und Outlook zusammen.

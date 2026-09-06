@@ -1,5 +1,10 @@
 # PC-Konfigurator-GUI
 
+<!-- release-metadata:start -->
+> **Release-Version:** 1.0.2  
+> **Stand:** 2026-09-06
+<!-- release-metadata:end -->
+
 **PC-Konfigurator-GUI** ist der grafische Nachfolger des konsolenbasierten
 Automatisierungs-Tools **PC-Konfigurator**. Die GUI ist als PowerShell-
 Anwendung auf Basis der Windows Presentation Foundation umgesetzt und wird

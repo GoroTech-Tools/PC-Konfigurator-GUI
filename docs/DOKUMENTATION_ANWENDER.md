@@ -1,10 +1,15 @@
 # PC-Konfigurator-GUI – Anwenderdokumentation
 
+<!-- release-metadata:start -->
+> **Release-Version:** 1.0.2  
+> **Stand:** 2026-09-06
+<!-- release-metadata:end -->
+
 ## Version
 
-GUI-Version: 1.0.0.0
-
-Release-Dateien verwenden das Format `PC-Konfigurator-GUI-v1.0.0.0.zip`.
+Die aktuelle Release-Version und das Erstellungsdatum stehen im
+Release-Metadatenblock am Anfang dieses Dokuments. Release-Dateien verwenden
+das Format `PC-Konfigurator-GUI-v<major.minor.patch>.zip`.
 
 ## Zweck
 
