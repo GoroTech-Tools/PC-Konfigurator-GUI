@@ -5,6 +5,11 @@ Automatisierungs-Tools **PC-Konfigurator**. Die GUI ist als PowerShell-
 Anwendung auf Basis der Windows Presentation Foundation umgesetzt und wird
 mit PS2EXE als eigenständige EXE kompiliert.
 
+Die Windows Presentation Foundation stellt die interaktive grafische
+Benutzeroberfläche bereit. Sie führt durch die Konfiguration, macht Auswahl-
+und Bestätigungsschritte verständlich zugänglich und zeigt den Fortschritt
+sowie Protokollmeldungen während der Ausführung an.
+
 Autor: Thomas Gorontzy · Version 1.0.0.0
 Plattform: Windows 10 (Build 18362+) / Windows 11, Office 2013+
 

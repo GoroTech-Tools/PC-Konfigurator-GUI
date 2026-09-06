@@ -10,6 +10,14 @@ Release-Dateien verwenden das Format `PC-Konfigurator-GUI-v1.0.0.0.zip`.
 
 Die PC-Konfigurator-GUI richtet Windows- und Office-Arbeitsumgebungen mit vorbereiteten Vorlagen, Schriftarten, Corporate Design und empfohlenen Einstellungen ein.
 
+## Grafische Benutzeroberfläche
+
+Die Anwendung verwendet die **Windows Presentation Foundation** für ihre
+grafische Benutzeroberfläche. Sie ersetzt die Eingaben der ursprünglichen
+Konsolen-Variante durch einen geführten Assistenten, in dem Auswahlen,
+Bestätigungen, Fortschritt und Protokollmeldungen übersichtlich angezeigt
+werden.
+
 ## Installation und Schnellstart
 
 1. Entpacken Sie das Release-ZIP.

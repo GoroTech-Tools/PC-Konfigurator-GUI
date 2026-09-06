@@ -2,7 +2,7 @@
 
 ## Aufbau und Release
 
-Die Anwendung ist ein PowerShell-Skript mit einer grafischen Benutzeroberfläche auf Basis der Windows Presentation Foundation, das mit PS2EXE als GUI-EXE gebaut wird. Ein Release-ZIP enthält:
+Die Anwendung ist ein PowerShell-Skript mit einer grafischen Benutzeroberfläche auf Basis der Windows Presentation Foundation, das mit PS2EXE als GUI-EXE gebaut wird. Die Windows Presentation Foundation stellt Fenster, Steuerelemente und den Assistenten bereit; dadurch werden die Konsoleneingaben des Ursprungsprojekts durch eine geführte Bedienung ersetzt und Laufzeitprotokolle können live angezeigt werden. Ein Release-ZIP enthält:
 
 - `PC-Konfigurator-GUI.exe`
 - `README.MD`

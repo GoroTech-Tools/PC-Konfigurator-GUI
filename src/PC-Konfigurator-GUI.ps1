@@ -6,6 +6,8 @@
 # ============================================================================
 # PC-Konfigurator-GUI
 # GUI-Nachfolger des konsolenbasierten PC-Konfigurator (PowerShell/Windows Presentation Foundation).
+# Die Windows Presentation Foundation stellt die interaktive Oberfläche für
+# den geführten Assistenten, Eingaben, Bestätigungen und Live-Protokolle bereit.
 # Die komplette fachliche Logik wurde 1:1 aus PC-Konfigurator.ps1 (Original-
 # Projekt) übernommen. Alle interaktiven Read-Host-Konsolenabfragen wurden
 # durch einen Windows-Presentation-Foundation-Einrichtungsassistenten (Wizard) ersetzt.
