@@ -15,7 +15,7 @@ Die PC-Konfigurator-GUI richtet Windows- und Office-Arbeitsumgebungen mit vorber
 1. Entpacken Sie das Release-ZIP.
 2. Speichern Sie offene Dokumente und schließen Sie Word, Excel und Outlook.
 3. Starten Sie `PC-Konfigurator-GUI.exe` direkt aus dem entpackten Releaseordner.
-4. Folgen Sie dem WPF-Assistenten.
+4. Folgen Sie dem Windows-Presentation-Foundation-Assistenten.
 
 Die EXE stellt sich beim ersten Start automatisch mit allen Laufzeitdateien im
 Benutzerprofil unter `%LOCALAPPDATA%\PC-Konfigurator-GUI` bereit und startet

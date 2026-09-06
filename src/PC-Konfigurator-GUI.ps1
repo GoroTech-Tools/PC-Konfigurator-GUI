@@ -5,10 +5,10 @@
 
 # ============================================================================
 # PC-Konfigurator-GUI
-# GUI-Nachfolger des konsolenbasierten PC-Konfigurator (PowerShell/WPF).
+# GUI-Nachfolger des konsolenbasierten PC-Konfigurator (PowerShell/Windows Presentation Foundation).
 # Die komplette fachliche Logik wurde 1:1 aus PC-Konfigurator.ps1 (Original-
 # Projekt) übernommen. Alle interaktiven Read-Host-Konsolenabfragen wurden
-# durch einen WPF-Einrichtungsassistenten (Wizard) ersetzt.
+# durch einen Windows-Presentation-Foundation-Einrichtungsassistenten (Wizard) ersetzt.
 # ============================================================================
 
 # 32-Bit-Office liefert nur eine Win32-Typbibliothek; ein 64-Bit-Host bricht sonst mit
@@ -2902,7 +2902,7 @@ function Invoke-PCKonfiguratorFinalize {
 }
 
 # ============================================================================
-# WPF-Einrichtungsassistent (Wizard)
+# Windows-Presentation-Foundation-Einrichtungsassistent (Wizard)
 # ----------------------------------------------------------------------------
 # XAML wird bewusst als Here-String direkt im Skript eingebettet (nicht aus
 # einer externen .xaml-Datei geladen), da eine mit ps2exe kompilierte EXE

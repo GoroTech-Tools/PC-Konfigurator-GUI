@@ -1,8 +1,9 @@
 # PC-Konfigurator-GUI
 
 **PC-Konfigurator-GUI** ist der grafische Nachfolger des konsolenbasierten
-Automatisierungs-Tools **PC-Konfigurator**. Die GUI ist als PowerShell/WPF-
-Anwendung umgesetzt und wird mit PS2EXE als eigenständige EXE kompiliert.
+Automatisierungs-Tools **PC-Konfigurator**. Die GUI ist als PowerShell-
+Anwendung auf Basis der Windows Presentation Foundation umgesetzt und wird
+mit PS2EXE als eigenständige EXE kompiliert.
 
 Autor: Thomas Gorontzy · Version 1.0.0.0
 Plattform: Windows 10 (Build 18362+) / Windows 11, Office 2013+
@@ -21,7 +22,7 @@ Plattform: Windows 10 (Build 18362+) / Windows 11, Office 2013+
 1. Release-ZIP entpacken.
 2. Office-Dateien speichern und Word, Excel sowie Outlook schließen.
 3. `PC-Konfigurator-GUI.exe` direkt aus dem Releaseordner starten.
-4. Dem WPF-Assistenten folgen.
+4. Dem Windows-Presentation-Foundation-Assistenten folgen.
 
 Beim ersten Start kopiert die EXE sich mit allen Laufzeitdateien automatisch nach:
 
