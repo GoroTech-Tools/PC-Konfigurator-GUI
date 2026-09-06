@@ -3102,7 +3102,7 @@ function Invoke-PCKonfiguratorFinalize {
 [xml]$xamlDefinition = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="PC-Konfigurator-GUI" Height="620" Width="820"
+    Title="PC-Konfigurator-GUI" Height="680" Width="820"
         WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Grid Margin="16">
         <Grid.RowDefinitions>
