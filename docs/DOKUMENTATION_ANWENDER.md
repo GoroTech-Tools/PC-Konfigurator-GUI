@@ -42,6 +42,7 @@ Der Assistent führt durch:
 - Zielauswahl für Datei-Vorlagen (Laufwerk oder Dokumente)
 - Corporate Design (INN-tegrativ, DBK oder Careli)
 - Schriftart und Schriftgrößen
+- Taskleisten-Ausrichtung: zentriert (Windows-Standard) oder linksbündig
 - Ausführung mit Live-Log
 - optionalen Explorer-Neustart
 

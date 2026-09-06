@@ -2813,7 +2813,8 @@ function Invoke-PCKonfiguratorPipeline {
         }
     }
 
-    Set-TaskbarSettings -Alignment "Left" -Search "Icon"
+    $taskbarAlignment = if ($Params.TaskbarAlignment -eq 'Left') { 'Left' } else { 'Center' }
+    Set-TaskbarSettings -Alignment $taskbarAlignment -Search "Icon"
 
     Write-Host -foregroundcolor Green "  ✓ Schritt 6/7 abgeschlossen: Windows-Einstellungen wurden verarbeitet."
 
@@ -3191,6 +3192,11 @@ Aktivieren Sie das Kontrollkästchen, um eine individuelle Auswahl zu treffen.
                     </ComboBox>
                 </StackPanel>
 
+                <TextBlock Text="Taskleisten-Ausrichtung" FontWeight="Bold" Margin="0,8,0,6"/>
+                <TextBlock Text="Wählen Sie, wie die Symbole auf der Windows-Taskleiste ausgerichtet werden sollen." TextWrapping="Wrap" Margin="0,0,0,6" Foreground="#555555"/>
+                <RadioButton x:Name="radTaskbarCenter" GroupName="TaskbarAlignment" Content="Zentriert (Windows-Standard)" IsChecked="True" Margin="0,0,0,4"/>
+                <RadioButton x:Name="radTaskbarLeft" GroupName="TaskbarAlignment" Content="Linksbündig" Margin="0,0,0,8"/>
+
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
                     <Button x:Name="btnFontBack" Content="Zurück" Width="140" Height="32" Margin="0,0,10,0"/>
                     <Button x:Name="btnFontNext" Content="Weiter" Width="140" Height="32"/>
@@ -3259,7 +3265,7 @@ foreach ($name in @(
         'PanelWelcome', 'chkOfficeClosed', 'btnWelcomeNext',
         'PanelTarget', 'radDrive', 'txtDriveLetter', 'radDocuments', 'btnTargetBack', 'btnTargetNext',
         'PanelDesign', 'radDesign1', 'radDesign2', 'radDesign3', 'btnDesignBack', 'btnDesignNext',
-        'PanelFont', 'chkIndividualFonts', 'PanelFontDetails', 'cmbFontName', 'cmbFontSizeWord', 'cmbFontSizeExcel', 'btnFontBack', 'btnFontNext',
+        'PanelFont', 'chkIndividualFonts', 'PanelFontDetails', 'cmbFontName', 'cmbFontSizeWord', 'cmbFontSizeExcel', 'radTaskbarCenter', 'radTaskbarLeft', 'btnFontBack', 'btnFontNext',
         'PanelExecution', 'btnStartPipeline', 'lblExecutionStatus', 'txtLog', 'scrollLog', 'progBar',
         'PanelFinish', 'chkRestartExplorer', 'btnFinish'
     )) {
@@ -3401,6 +3407,7 @@ function Start-BackgroundPipeline {
     $selectedFontSizeWord = if ($ctrl['cmbFontSizeWord'].SelectedItem) { [int]$ctrl['cmbFontSizeWord'].SelectedItem.Content.ToString() } else { 11 }
     $selectedFontSizeExcel = if ($ctrl['cmbFontSizeExcel'].SelectedItem) { [int]$ctrl['cmbFontSizeExcel'].SelectedItem.Content.ToString() } else { 10 }
     $individualFonts = [bool]$ctrl['chkIndividualFonts'].IsChecked
+    $taskbarAlignment = if ([bool]$ctrl['radTaskbarLeft'].IsChecked) { 'Left' } else { 'Center' }
     if (-not $individualFonts) {
         $selectedFontName = 'Aptos'
         $selectedFontSizeWord = 11
@@ -3421,11 +3428,12 @@ function Start-BackgroundPipeline {
         FontName        = $selectedFontName
         FontSizeWord    = $selectedFontSizeWord
         FontSizeExcel   = $selectedFontSizeExcel
+        TaskbarAlignment = $taskbarAlignment
     }
 
     $ctrl['btnStartPipeline'].IsEnabled = $false
     $ctrl['lblExecutionStatus'].Text = 'Konfiguration läuft...'
-    Write-Log "=== Wizard-Eingaben übernommen: Ziel=$(if ($pipelineParams.UseDocuments) { 'Dokumente' } else { "Laufwerk $($pipelineParams.DriveLetter)" }), Design=$($pipelineParams.SelectedDesign), IndividualFonts=$($pipelineParams.IndividualFonts) ===" "INFO"
+    Write-Log "=== Wizard-Eingaben übernommen: Ziel=$(if ($pipelineParams.UseDocuments) { 'Dokumente' } else { "Laufwerk $($pipelineParams.DriveLetter)" }), Design=$($pipelineParams.SelectedDesign), IndividualFonts=$($pipelineParams.IndividualFonts), Taskleiste=$($pipelineParams.TaskbarAlignment) ===" "INFO"
 
     $initialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
     $script:PipelineRunspace = [runspacefactory]::CreateRunspace($initialSessionState)
