@@ -282,19 +282,23 @@ if ([Environment]::Is64BitProcess -and -not $env:PCK_ARCH_RELAUNCH) {
                 if ($TestUI) { $relaunchArgs += '-TestUI' }
                 $process = Start-Process -FilePath $powerShell32 -ArgumentList $relaunchArgs -NoNewWindow -Wait -PassThru
             } else {
-                $relaunchTarget = [Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
-                # Auch beim kompilierten ps2exe-Host müssen die Schalter an den
-                # 32-Bit-Child-Prozess weitergereicht werden. Sonst bleibt der
-                # Parent nach -TestUI bzw. DryRun als unsichtbarer Restprozess
-                # bestehen und der Child startet mit anderem Verhalten.
-                $relaunchArgs = @()
+                # Die EXE ist ein 64-Bit-Prozess und kann 32-Bit-Office nicht
+                # durch einen erneuten Start derselben EXE erreichen. Das beim
+                # ersten Start entpackte Quellskript wird deshalb gezielt mit
+                # der 32-Bit-PowerShell ausgeführt.
+                $relaunchSource = Join-Path $localAppDataRoot 'src\PC-Konfigurator-GUI.ps1'
+                if (-not (Test-Path -LiteralPath $relaunchSource -PathType Leaf)) {
+                    Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
+                    [System.Windows.MessageBox]::Show(
+                        "Die 32-Bit-Office-Kompatibilität konnte nicht gestartet werden, weil das Laufzeitskript fehlt:`r`n$relaunchSource",
+                        'PC-Konfigurator-GUI', 'OK', 'Error') | Out-Null
+                    exit 1
+                }
+
+                $relaunchArgs = @('-NoLogo', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $relaunchSource)
                 if ($DryRun) { $relaunchArgs += '-DryRun' }
                 if ($TestUI) { $relaunchArgs += '-TestUI' }
-                if ($relaunchArgs.Count -gt 0) {
-                    $process = Start-Process -FilePath $relaunchTarget -ArgumentList $relaunchArgs -Wait -PassThru
-                } else {
-                    $process = Start-Process -FilePath $relaunchTarget -Wait -PassThru
-                }
+                $process = Start-Process -FilePath $powerShell32 -ArgumentList $relaunchArgs -WindowStyle Hidden -Wait -PassThru
             }
             exit $process.ExitCode
         }

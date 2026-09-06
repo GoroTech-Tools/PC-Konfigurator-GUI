@@ -28,6 +28,11 @@ aktualisiert. Dadurch werden auch neuere Vorlagen und Fontdateien in einer
 bereits vorhandenen Benutzerinstallation übernommen. Die EXE startet danach
 aus dem aktualisierten AppData-Verzeichnis.
 
+Wird ausschließlich 32-Bit-Office erkannt, startet die EXE das extrahierte
+Quellskript mit `SysWOW64\WindowsPowerShell\v1.0\powershell.exe`. Damit können
+die COM-Aufrufe zum Einbetten des Corporate Designs in Word-, Excel- und
+Outlook-Vorlagen mit der passenden Office-Bitness ausgeführt werden.
+
 ## Laufzeitpfade
 
 | Quelle | Verwendung |
