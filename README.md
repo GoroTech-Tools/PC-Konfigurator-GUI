@@ -46,6 +46,10 @@ Beim ersten Start kopiert die EXE sich mit allen Laufzeitdateien automatisch nac
 
 `%LOCALAPPDATA%\PC-Konfigurator-GUI`
 
+Während dieser Vorbereitung zeigt ein eigenes Fenster den Hinweis
+„Zur Vorbereitung wird der PC-Konfigurator in Ihrem System hinterlegt. Es geht
+gleich weiter.“ sowie den aktuellen Einrichtungsschritt an.
+
 Anschließend startet sie aus diesem Benutzerordner. Ein manuelles
 Installationsskript ist nicht erforderlich.
 

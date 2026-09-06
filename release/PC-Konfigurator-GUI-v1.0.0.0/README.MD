@@ -13,6 +13,19 @@ sowie Protokollmeldungen während der Ausführung an.
 Autor: Thomas Gorontzy · Version 1.0.0.0
 Plattform: Windows 10 (Build 18362+) / Windows 11, Office 2013+
 
+## Herkunft und Einsatzbereich
+
+Das Vorhaben baut auf dem konsolenbasierten Projekt
+**PC-Konfigurator** auf. Die GUI bildet dessen Konfigurationsabläufe in einem
+Windows-Presentation-Foundation-Assistenten ab und ergänzt sie um geführte Auswahl, Systemprüfung,
+Live-Protokollierung und einen automatischen Benutzer-Installationsablauf.
+
+Die Anwendung richtet Arbeitsumgebungen mit vorbereiteten Office-Vorlagen,
+Schriftarten und Corporate-Design-Einstellungen ein. Sie konfiguriert Word,
+Excel und klassisches Outlook, synchronisiert bei Bedarf Outlook-Signaturen
+und nimmt ausgewählte Windows-Explorer-Einstellungen vor. Vor dem Ersetzen
+persönlicher Vorlagen werden Sicherungskopien angelegt.
+
 ## Kernfunktionen
 
 - Synchronisation der Datei-Vorlagen (`Datei-Vorlagen\`) und Schriftarten (`Fonts\`)
@@ -32,6 +45,10 @@ Plattform: Windows 10 (Build 18362+) / Windows 11, Office 2013+
 Beim ersten Start kopiert die EXE sich mit allen Laufzeitdateien automatisch nach:
 
 `%LOCALAPPDATA%\PC-Konfigurator-GUI`
+
+Während dieser Vorbereitung zeigt ein eigenes Fenster den Hinweis
+„Zur Vorbereitung wird der PC-Konfigurator in Ihrem System hinterlegt. Es geht
+gleich weiter.“ sowie den aktuellen Einrichtungsschritt an.
 
 Anschließend startet sie aus diesem Benutzerordner. Ein manuelles
 Installationsskript ist nicht erforderlich.

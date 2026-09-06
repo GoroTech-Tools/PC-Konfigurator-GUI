@@ -24,6 +24,64 @@ $isScriptHost = -not [string]::IsNullOrWhiteSpace($PSCommandPath) -and
 # Beim ersten Start werden alle Laufzeitdateien nach LocalAppData kopiert und
 # die Anwendung von dort erneut gestartet. Im Zielordner läuft sie danach ohne
 # Bezug zum Release- oder OneDrive-Ordner.
+function Show-PreparationWindow {
+    Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
+    Add-Type -AssemblyName WindowsBase -ErrorAction Stop
+
+    $window = New-Object System.Windows.Window
+    $window.Title = 'PC-Konfigurator-GUI wird vorbereitet'
+    $window.Width = 560
+    $window.Height = 235
+    $window.WindowStartupLocation = 'CenterScreen'
+    $window.ResizeMode = 'NoResize'
+    $window.WindowStyle = 'SingleBorderWindow'
+    $window.ShowInTaskbar = $true
+
+    $panel = New-Object System.Windows.Controls.StackPanel
+    $panel.Margin = '24'
+
+    $title = New-Object System.Windows.Controls.TextBlock
+    $title.Text = 'PC-Konfigurator-GUI wird vorbereitet'
+    $title.FontSize = 20
+    $title.FontWeight = 'SemiBold'
+    $title.Margin = '0,0,0,16'
+    [void]$panel.Children.Add($title)
+
+    $message = New-Object System.Windows.Controls.TextBlock
+    $message.Text = 'Zur Vorbereitung wird der PC-Konfigurator in Ihrem System hinterlegt. Es geht gleich weiter.'
+    $message.TextWrapping = 'Wrap'
+    $message.FontSize = 14
+    $message.Margin = '0,0,0,18'
+    [void]$panel.Children.Add($message)
+
+    $status = New-Object System.Windows.Controls.TextBlock
+    $status.Text = 'Vorbereitung wird gestartet ...'
+    $status.FontWeight = 'SemiBold'
+    $status.Foreground = [System.Windows.Media.Brushes]::DarkSlateGray
+    [void]$panel.Children.Add($status)
+
+    $window.Content = $panel
+    $window.Show()
+    $window.UpdateLayout()
+    $window.Dispatcher.Invoke([Action] {}, [System.Windows.Threading.DispatcherPriority]::Render)
+
+    return [pscustomobject]@{
+        Window = $window
+        Status = $status
+    }
+}
+
+function Set-PreparationWindowStatus {
+    param(
+        [Parameter(Mandatory = $true)]$PreparationWindow,
+        [Parameter(Mandatory = $true)][string]$Message
+    )
+
+    $PreparationWindow.Status.Text = $Message
+    $PreparationWindow.Window.UpdateLayout()
+    $PreparationWindow.Window.Dispatcher.Invoke([Action] {}, [System.Windows.Threading.DispatcherPriority]::Render)
+}
+
 if (-not $isScriptHost) {
     $currentExecutable = [Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
     $currentRoot = Split-Path -Path $currentExecutable -Parent
@@ -33,15 +91,26 @@ if (-not $isScriptHost) {
     $localAppDataRootFull = [IO.Path]::GetFullPath($localAppDataRoot).TrimEnd('\')
     $embeddedPayload = Join-Path $localAppDataRoot '_embedded-payload.zip'
     if (Test-Path -LiteralPath $embeddedPayload -PathType Leaf) {
+        $preparationWindow = $null
         try {
-            Expand-Archive -LiteralPath $embeddedPayload -DestinationPath $localAppDataRoot -Force
+            $preparationWindow = Show-PreparationWindow
+            Set-PreparationWindowStatus -PreparationWindow $preparationWindow -Message 'Laufzeitdateien werden eingerichtet ...'
+            Expand-Archive -LiteralPath $embeddedPayload -DestinationPath $localAppDataRoot -Force -ErrorAction Stop
+            Set-PreparationWindowStatus -PreparationWindow $preparationWindow -Message 'Vorbereitung abgeschlossen. Der Assistent wird gestartet ...'
             Remove-Item -LiteralPath $embeddedPayload -Force
         } catch {
+            if ($preparationWindow -and $preparationWindow.Window) {
+                $preparationWindow.Window.Close()
+            }
             Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
             [System.Windows.MessageBox]::Show(
                 "Die eingebetteten Laufzeitdateien konnten nicht entpackt werden:`r`n$($_.Exception.Message)",
                 'PC-Konfigurator-GUI', 'OK', 'Error') | Out-Null
             exit 1
+        } finally {
+            if ($preparationWindow -and $preparationWindow.Window) {
+                $preparationWindow.Window.Close()
+            }
         }
     }
 

@@ -29,6 +29,11 @@ Die EXE stellt sich beim ersten Start automatisch mit allen Laufzeitdateien im
 Benutzerprofil unter `%LOCALAPPDATA%\PC-Konfigurator-GUI` bereit und startet
 sich von dort erneut. Ein manueller Installeraufruf ist nicht erforderlich.
 
+Während die Anwendung vorbereitet wird, erscheint ein eigenes Fenster mit dem
+Hinweis „Zur Vorbereitung wird der PC-Konfigurator in Ihrem System hinterlegt.
+Es geht gleich weiter.“ Der jeweils aktuelle Vorbereitungsschritt wird darin
+angezeigt; eine Konsolenausgabe ist hierfür nicht erforderlich.
+
 ## GUI-Assistent
 
 Der Assistent führt durch:

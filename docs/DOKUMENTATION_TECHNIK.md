@@ -12,6 +12,13 @@ und `src`. Beim ersten Start wird dieses Payload nach
 `%LOCALAPPDATA%\PC-Konfigurator-GUI` extrahiert. Die EXE ermittelt danach ihr
 eigenes AppData-Verzeichnis als `ScriptRoot`.
 
+Während der Extraktion zeigt `Show-PreparationWindow` ein eigenes Fenster der
+Windows Presentation Foundation. Es informiert mit dem Text „Zur Vorbereitung
+wird der PC-Konfigurator in Ihrem System hinterlegt. Es geht gleich weiter.“
+und aktualisiert den sichtbaren Vorbereitungsschritt. So bleibt der
+Selbstinstallationsablauf nachvollziehbar, ohne dass Meldungen von
+`Expand-Archive` in einer Konsole erscheinen müssen.
+
 Bei jedem Start aus einem Releaseordner werden EXE, `Datei-Vorlagen`, `Fonts`,
 `docs` und die Hilfsskripte mit `-Force` nach `%LOCALAPPDATA%\PC-Konfigurator-GUI`
 aktualisiert. Dadurch werden auch neuere Vorlagen und Fontdateien in einer
