@@ -119,17 +119,33 @@ function Update-LocalRelease {
     )
 
     $releaseRoot = Join-Path $projectRoot 'release'
-    $releaseFolder = Join-Path $releaseRoot "PC-Konfigurator-GUI-v$ReleaseVersion"
     $releaseZip = Join-Path $releaseRoot "PC-Konfigurator-GUI-v$ReleaseVersion.zip"
+    $archiveRoot = Join-Path $releaseRoot 'Archiv'
+    $stagingRoot = Join-Path $env:TEMP "PC-Konfigurator-GUI-v$ReleaseVersion-$([guid]::NewGuid())"
 
-    New-Item -ItemType Directory -Path $releaseFolder -Force | Out-Null
-    Copy-Item -LiteralPath $ExecutablePath -Destination (Join-Path $releaseFolder 'PC-Konfigurator-GUI.exe') -Force
-    Copy-Item -LiteralPath (Join-Path $projectRoot 'README.MD') -Destination (Join-Path $releaseFolder 'README.MD') -Force
+    New-Item -ItemType Directory -Path $releaseRoot -Force | Out-Null
+    New-Item -ItemType Directory -Path $archiveRoot -Force | Out-Null
 
-    if (Test-Path -LiteralPath $releaseZip) {
-        Remove-Item -LiteralPath $releaseZip -Force
+    # Nur das aktuelle ZIP bleibt im Release-Ordner. Frühere Pakete werden
+    # vollständig und ohne Entpacken ins lokale Archiv verschoben.
+    Get-ChildItem -LiteralPath $releaseRoot -File -Filter 'PC-Konfigurator-GUI-v*.zip' | Where-Object { $_.FullName -ne $releaseZip } | ForEach-Object {
+            Move-Item -LiteralPath $_.FullName -Destination (Join-Path $archiveRoot $_.Name) -Force
+            Write-Host "Älteres Release archiviert: $($_.Name)" -ForegroundColor Cyan
+        }
+
+    try {
+        New-Item -ItemType Directory -Path $stagingRoot -Force | Out-Null
+        Copy-Item -LiteralPath $ExecutablePath -Destination (Join-Path $stagingRoot 'PC-Konfigurator-GUI.exe') -Force
+        Copy-Item -LiteralPath (Join-Path $projectRoot 'README.MD') -Destination (Join-Path $stagingRoot 'README.MD') -Force
+        if (Test-Path -LiteralPath $releaseZip) {
+            Remove-Item -LiteralPath $releaseZip -Force
+        }
+        Compress-Archive -Path (Join-Path $stagingRoot '*') -DestinationPath $releaseZip -CompressionLevel Optimal -Force
+    } finally {
+        if (Test-Path -LiteralPath $stagingRoot) {
+            Remove-Item -LiteralPath $stagingRoot -Recurse -Force
+        }
     }
-    Compress-Archive -Path $releaseFolder -DestinationPath $releaseZip -CompressionLevel Optimal -Force
 
     Write-Host "Lokales Release aktualisiert: $releaseZip" -ForegroundColor Green
 }

@@ -57,7 +57,6 @@ function Update-ReleaseDocumentation {
 }
 
 $releaseRoot = Join-Path $projectRoot 'release'
-$stageRoot = Join-Path $releaseRoot "PC-Konfigurator-GUI-v$Version"
 $zipPath = Join-Path $releaseRoot "PC-Konfigurator-GUI-v$Version.zip"
 $buildScript = Join-Path $projectRoot 'build.ps1'
 $buildExe = Join-Path $projectRoot 'build\PC-Konfigurator-GUI.exe'
@@ -77,15 +76,10 @@ foreach ($required in @($buildExe, (Join-Path $projectRoot 'Datei-Vorlagen'), (J
     if (-not (Test-Path -LiteralPath $required)) { throw "Release-Quelle fehlt: $required" }
 }
 
-if (Test-Path $stageRoot) { Remove-Item -LiteralPath $stageRoot -Recurse -Force }
-New-Item -ItemType Directory -Path $stageRoot -Force | Out-Null
-Copy-Item -LiteralPath $buildExe -Destination (Join-Path $stageRoot 'PC-Konfigurator-GUI.exe') -Force
-Copy-Item -LiteralPath (Join-Path $projectRoot 'README.MD') -Destination (Join-Path $stageRoot 'README.MD') -Force
+if (-not (Test-Path -LiteralPath $zipPath -PathType Leaf)) {
+    throw "Das Release-ZIP wurde nicht erstellt: $zipPath"
+}
 
-New-Item -ItemType Directory -Path $releaseRoot -Force | Out-Null
-if (Test-Path $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
-Compress-Archive -Path $stageRoot -DestinationPath $zipPath -CompressionLevel Optimal -Force
-
-$files = Get-ChildItem -LiteralPath $stageRoot -File -Recurse
+$files = Get-ChildItem -LiteralPath $zipPath -File
 Write-Host "Release erstellt: $zipPath" -ForegroundColor Green
 Write-Host "Dateien: $($files.Count); Größe: $([Math]::Round((Get-Item $zipPath).Length / 1MB, 2)) MB"

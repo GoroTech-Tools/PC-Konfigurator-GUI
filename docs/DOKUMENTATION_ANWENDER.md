@@ -1,7 +1,7 @@
-# PC-Konfigurator-GUI – Anwenderdokumentation
+# PC-Konfigurator-GUI â€“ Anwenderdokumentation
 
 <!-- release-metadata:start -->
-> **Release-Version:** 1.0.3  
+> **Release-Version:** 1.0.4  
 > **Stand:** 2026-09-06
 <!-- release-metadata:end -->
 
@@ -15,18 +15,18 @@ das Format `PC-Konfigurator-GUI-v<major.minor.patch>.zip`.
 
 Die PC-Konfigurator-GUI richtet Windows- und Office-Arbeitsumgebungen mit vorbereiteten Vorlagen, Schriftarten, Corporate Design und empfohlenen Einstellungen ein.
 
-## Grafische Benutzeroberfläche
+## Grafische BenutzeroberflÃ¤che
 
-Die Anwendung verwendet die **Windows Presentation Foundation** für ihre
-grafische Benutzeroberfläche. Sie ersetzt die Eingaben der ursprünglichen
-Konsolen-Variante durch einen geführten Assistenten, in dem Auswahlen,
-Bestätigungen, Fortschritt und Protokollmeldungen übersichtlich angezeigt
+Die Anwendung verwendet die **Windows Presentation Foundation** fÃ¼r ihre
+grafische BenutzeroberflÃ¤che. Sie ersetzt die Eingaben der ursprÃ¼nglichen
+Konsolen-Variante durch einen gefÃ¼hrten Assistenten, in dem Auswahlen,
+BestÃ¤tigungen, Fortschritt und Protokollmeldungen Ã¼bersichtlich angezeigt
 werden.
 
 ## Installation und Schnellstart
 
 1. Entpacken Sie das Release-ZIP.
-2. Speichern Sie offene Dokumente und schließen Sie Word, Excel und Outlook.
+2. Speichern Sie offene Dokumente und schlieÃŸen Sie Word, Excel und Outlook.
 3. Starten Sie `PC-Konfigurator-GUI.exe` direkt aus dem entpackten Releaseordner.
 4. Folgen Sie dem Windows-Presentation-Foundation-Assistenten.
 
@@ -34,22 +34,22 @@ Die EXE stellt sich beim ersten Start automatisch mit allen Laufzeitdateien im
 Benutzerprofil unter `%LOCALAPPDATA%\PC-Konfigurator-GUI` bereit und startet
 sich von dort erneut. Ein manueller Installeraufruf ist nicht erforderlich.
 
-Während die Anwendung vorbereitet wird, erscheint ein eigenes Fenster mit dem
-Hinweis „Zur Vorbereitung wird der PC-Konfigurator in Ihrem System hinterlegt.
-Es geht gleich weiter.“ Der jeweils aktuelle Vorbereitungsschritt wird darin
-angezeigt; eine Konsolenausgabe ist hierfür nicht erforderlich.
+WÃ¤hrend die Anwendung vorbereitet wird, erscheint ein eigenes Fenster mit dem
+Hinweis â€žZur Vorbereitung wird der PC-Konfigurator in Ihrem System hinterlegt.
+Es geht gleich weiter.â€œ Der jeweils aktuelle Vorbereitungsschritt wird darin
+angezeigt; eine Konsolenausgabe ist hierfÃ¼r nicht erforderlich.
 
 ## GUI-Assistent
 
-Der Assistent führt durch:
+Der Assistent fÃ¼hrt durch:
 
-- Office-Schließbestätigung und Systemprüfung
-- Zielauswahl für Datei-Vorlagen (Laufwerk oder Dokumente)
+- Office-SchlieÃŸbestÃ¤tigung und SystemprÃ¼fung
+- Zielauswahl fÃ¼r Datei-Vorlagen (Laufwerk oder Dokumente)
 - Corporate Design (INN-tegrativ, DBK oder Careli)
-- Schriftart und Schriftgrößen
-- Taskleisten-Ausrichtung: zentriert (Windows-Standard) oder linksbündig
+- Schriftart und SchriftgrÃ¶ÃŸen
+- Taskleisten-Ausrichtung: zentriert (Windows-Standard) oder linksbÃ¼ndig
 - Versteckte Elemente im Datei-Explorer: anzeigen (Standard) oder nicht anzeigen
-- Ausführung mit Live-Log
+- AusfÃ¼hrung mit Live-Log
 - optionalen Explorer-Neustart
 
 ## Was wird eingerichtet?
@@ -64,30 +64,30 @@ Der Assistent führt durch:
 
 ## Vorbereitete Vorlagen
 
-Die GUI verändert die Standardvorlagen nicht per COM. Sie wählt die passende, bereits vorbereitete Datei nach dem Schema aus:
+Die GUI verÃ¤ndert die Standardvorlagen nicht per COM. Sie wÃ¤hlt die passende, bereits vorbereitete Datei nach dem Schema aus:
 
-- `Normal-<Schrift>-<Größe>.dotm` → `%APPDATA%\Microsoft\Templates\Normal.dotm`
-- `NormalEmail-<Schrift>-<Größe>.dotm` → `%APPDATA%\Microsoft\Templates\NormalEmail.dotm`
-- `Mappe-<Schrift>-<Größe>.xltx` → `%APPDATA%\Microsoft\Excel\XLSTART\Mappe.xltx`
+- `Normal-<Schrift>-<GrÃ¶ÃŸe>.dotm` â†’ `%APPDATA%\Microsoft\Templates\Normal.dotm`
+- `NormalEmail-<Schrift>-<GrÃ¶ÃŸe>.dotm` â†’ `%APPDATA%\Microsoft\Templates\NormalEmail.dotm`
+- `Mappe-<Schrift>-<GrÃ¶ÃŸe>.xltx` â†’ `%APPDATA%\Microsoft\Excel\XLSTART\Mappe.xltx`
 
-Vorhandene Benutzerdateien werden vor dem Überschreiben unter `Dokumente\PC-Konfigurator-GUI\Backups` gesichert.
+Vorhandene Benutzerdateien werden vor dem Ãœberschreiben unter `Dokumente\PC-Konfigurator-GUI\Backups` gesichert.
 
-Das gewählte Corporate Design wird außerdem in den Farbauswahllisten von
-Office bereitgestellt. Schließen und öffnen Sie Word, Excel oder klassisches
+Das gewÃ¤hlte Corporate Design wird auÃŸerdem in den Farbauswahllisten von
+Office bereitgestellt. SchlieÃŸen und Ã¶ffnen Sie Word, Excel oder klassisches
 Outlook nach der Konfiguration erneut, damit die aktualisierte Farbliste
 eingelesen wird.
 
 ## Schriftartauswahl
 
-Zur Auswahl stehen Aptos, Aptos Narrow, Arial, Calibri, Futura, PT Sans, Roboto und Segoe UI. Standardmäßig gelten Aptos, 11 pt für Word/Outlook und 10 pt für Excel.
+Zur Auswahl stehen Aptos, Aptos Narrow, Arial, Calibri, Futura, PT Sans, Roboto und Segoe UI. StandardmÃ¤ÃŸig gelten Aptos, 11 pt fÃ¼r Word/Outlook und 10 pt fÃ¼r Excel.
 
 ## Outlook-Hinweis
 
-Die Registrywerte und `NormalEmail.dotm` gelten für **klassisches Outlook**. Die neue Outlook-App verwendet eigene Microsoft-365-Einstellungen. Dort muss die Schrift unter **Einstellungen → Mail → Verfassen und Antworten** gesetzt werden. Die GUI protokolliert, wenn die neue Outlook-App erkannt wird.
+Die Registrywerte und `NormalEmail.dotm` gelten fÃ¼r **klassisches Outlook**. Die neue Outlook-App verwendet eigene Microsoft-365-Einstellungen. Dort muss die Schrift unter **Einstellungen â†’ Mail â†’ Verfassen und Antworten** gesetzt werden. Die GUI protokolliert, wenn die neue Outlook-App erkannt wird.
 
 ## Signaturen und Logs
 
-Eigene Outlook-Signaturen werden in den gewählten Vorlagenzielordner unter `Signaturen` gesichert und bei Bedarf nach `%APPDATA%\Microsoft\Signatures` zurückgespielt.
+Eigene Outlook-Signaturen werden in den gewÃ¤hlten Vorlagenzielordner unter `Signaturen` gesichert und bei Bedarf nach `%APPDATA%\Microsoft\Signatures` zurÃ¼ckgespielt.
 
 Logs liegen unter:
 
@@ -96,8 +96,8 @@ Logs liegen unter:
 
 ## Fehlerdiagnose
 
-- Vor dem Lauf alle Office-Programme vollständig schließen.
-- Prüfen, ob `%LOCALAPPDATA%\PC-Konfigurator-GUI\Datei-Vorlagen` und `Fonts` vorhanden sind.
+- Vor dem Lauf alle Office-Programme vollstÃ¤ndig schlieÃŸen.
+- PrÃ¼fen, ob `%LOCALAPPDATA%\PC-Konfigurator-GUI\Datei-Vorlagen` und `Fonts` vorhanden sind.
 - Bei Vorlagenproblemen das Backup unter `Dokumente\PC-Konfigurator-GUI\Backups` verwenden.
 - Bei neuer Outlook-App die Schrift in den Microsoft-365-/Outlook-Einstellungen setzen.
 
