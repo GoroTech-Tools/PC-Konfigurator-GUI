@@ -1562,7 +1562,7 @@ function Invoke-PCKonfiguratorPipeline {
                 throw "Farbschema wurde nicht gefunden: $sourcePath"
             }
 
-            $themeColorsDirectory = Join-Path $env:APPDATA 'Microsoft\Templates\Document Themes\Theme Colors'
+            $themeColorsDirectory = Join-Path $env:APPDATA 'Microsoft\Templates\Theme Colors'
             New-Item -ItemType Directory -Path $themeColorsDirectory -Force | Out-Null
             $themeColorsPath = Join-Path $themeColorsDirectory "$Design.xml"
             $colorSchemeXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + [Environment]::NewLine + $colorScheme.OuterXml
