@@ -89,6 +89,11 @@ Im Projektverzeichnis:
 .\create-release.ps1
 ```
 
+Auch `build.ps1` aktualisiert nach einer erfolgreichen Kompilierung die lokale
+Release-EXE und das ZIP unter `release\PC-Konfigurator-GUI-v<Version>\`.
+`create-release.ps1` übergibt seine Versionsnummer an den Build und erstellt
+anschließend die vollständige Release-Struktur erneut.
+
 Das ZIP-Release wird unter `release\` erzeugt. Auf Zielrechnern wird die EXE
 direkt aus dem entpackten Ordner gestartet; sie kopiert sich beim ersten Start
 selbstständig nach `%LOCALAPPDATA%\PC-Konfigurator-GUI` und startet sich von dort.

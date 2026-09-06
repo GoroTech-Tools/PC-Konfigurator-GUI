@@ -61,6 +61,9 @@ Build:
 .\build.ps1
 ```
 
+Jeder erfolgreiche Build aktualisiert die lokale Release-EXE und das
+Release-ZIP unter `release\PC-Konfigurator-GUI-v<Version>\`.
+
 Vollständiges Release-ZIP:
 
 ```powershell

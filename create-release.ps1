@@ -21,7 +21,7 @@ if (Get-CimInstance Win32_Process -Filter "Name='PC-Konfigurator-GUI.exe'" -Erro
 }
 
 if (-not $SkipBuild) {
-    & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $buildScript
+    & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $buildScript -Version $Version
     if ($LASTEXITCODE -ne 0) { throw "Build fehlgeschlagen: $LASTEXITCODE" }
 }
 

@@ -12,7 +12,8 @@
 [CmdletBinding()]
 param(
     [string]$SourceScript,
-    [string]$OutputExe
+    [string]$OutputExe,
+    [string]$Version = '1.0.0.0'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -72,6 +73,28 @@ Compress-Archive -Path (Join-Path $payloadStaging '*') -DestinationPath $payload
 Remove-Item $payloadStaging -Recurse -Force
 $embeddedFiles = @{ '%LOCALAPPDATA%\PC-Konfigurator-GUI\_embedded-payload.zip' = $payloadZip }
 
+function Update-LocalRelease {
+    param(
+        [Parameter(Mandatory = $true)][string]$ExecutablePath,
+        [Parameter(Mandatory = $true)][string]$ReleaseVersion
+    )
+
+    $releaseRoot = Join-Path $projectRoot 'release'
+    $releaseFolder = Join-Path $releaseRoot "PC-Konfigurator-GUI-v$ReleaseVersion"
+    $releaseZip = Join-Path $releaseRoot "PC-Konfigurator-GUI-v$ReleaseVersion.zip"
+
+    New-Item -ItemType Directory -Path $releaseFolder -Force | Out-Null
+    Copy-Item -LiteralPath $ExecutablePath -Destination (Join-Path $releaseFolder 'PC-Konfigurator-GUI.exe') -Force
+    Copy-Item -LiteralPath (Join-Path $projectRoot 'README.MD') -Destination (Join-Path $releaseFolder 'README.MD') -Force
+
+    if (Test-Path -LiteralPath $releaseZip) {
+        Remove-Item -LiteralPath $releaseZip -Force
+    }
+    Compress-Archive -Path $releaseFolder -DestinationPath $releaseZip -CompressionLevel Optimal -Force
+
+    Write-Host "Lokales Release aktualisiert: $releaseZip" -ForegroundColor Green
+}
+
 Write-Host "Kompiliere '$SourceScript' -> '$OutputExe' ..." -ForegroundColor Cyan
 
 try {
@@ -80,7 +103,7 @@ try {
         -outputFile $OutputExe `
         -noConsole `
         -title "PC-Konfigurator-GUI" `
-        -version "1.0.0.0" `
+        -version $Version `
         -company "Thomas Gorontzy" `
         -product "PC-Konfigurator-GUI" `
         -description "GUI-Assistent zur automatisierten Konfiguration von Windows-/Office-Arbeitsumgebungen (Vorlagen, Schriftarten, Corporate Design, Outlook-Signaturen)." `
@@ -91,6 +114,7 @@ try {
     if (Test-Path $OutputExe) {
         $exeInfo = Get-Item $OutputExe
         Write-Host "Build erfolgreich: $($exeInfo.FullName) ($([Math]::Round($exeInfo.Length / 1MB, 2)) MB)" -ForegroundColor Green
+        Update-LocalRelease -ExecutablePath $exeInfo.FullName -ReleaseVersion $Version
         Remove-Item $payloadZip -Force -ErrorAction SilentlyContinue
         exit 0
     } else {
