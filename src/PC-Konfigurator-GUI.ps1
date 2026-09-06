@@ -123,7 +123,8 @@ function Get-AppendedPayload {
         $payloadLength = [BitConverter]::ToInt64($payloadLengthBytes, 0)
         $markerBytes = New-Object byte[] $payloadMarker.Length
         [void]$source.Read($markerBytes, 0, $markerBytes.Length)
-        if (-not [Linq.Enumerable]::SequenceEqual[byte]($markerBytes, $payloadMarker)) {
+        $markerText = [Text.Encoding]::ASCII.GetString($markerBytes)
+        if ($markerText -ne 'PCKGUI-PAYLOAD-1') {
             throw 'Das eingebettete Laufzeitpaket ist ungültig.'
         }
 
